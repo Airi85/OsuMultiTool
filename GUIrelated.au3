@@ -239,7 +239,7 @@ func mainguiloop(); main gui loop for data
 		 if guictrlread($spinbox) = $GUI_CHECKED then $spin = 1
 		 if $exit = 1 then exitloop
 		 if $mode = 1 then relax($notes,$spinners)
-		 if $mode = 3 then aimbot($notes,$coords,$spinners)
+		 if $mode = 3 then aimbot($notes,$spinners)
 		 if $mode = 2 then aimcorrection($notes,$spinners)
 		 if $mode = 4 then relaxcorrection($notes,$spinners)
 		 if $mode = 5 then relaxaimbot($notes,$spinners)

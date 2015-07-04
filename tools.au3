@@ -3,15 +3,16 @@ func relax($notes,$spinners)
    $i = 1
    $exit = 0
    $k = 1
+   $limit = $notes[$i][3][1] + 1000
    while 1
-	  $limit = $notes[$i][3][1] + 1000
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[1], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
 	  if $ms >= $notes[$i][3][1] and $ms <= $limit Then
 		 if $usemouse = 1 Then
 		    mousedown($notes[$i][0][2])
 	     Else
-		    dllcall($_COMMON_USER32DLL,"int","keybd_event","int",$notes[$i][0][3],"int",0,"long",0,"long",0)
+		    ;dllcall($_COMMON_USER32DLL,"int","keybd_event","int",$notes[$i][0][3],"int",0,"long",0,"long",0)
+			send("{" & $notes[$i][0][3] & " down}")
 		 EndIf
 		 if $spin = 1 Then
 		 if $notes[$i][0][1] = "spinner" Then
@@ -28,28 +29,30 @@ func relax($notes,$spinners)
 		 if $usemouse = 1 Then
 		    mouseup($notes[$i][0][2])
 		 Else
-			dllcall($_COMMON_USER32DLL,"int","keybd_event","int",$notes[$i][0][3],"int",0,"long",2,"long",0)
+			;dllcall($_COMMON_USER32DLL,"int","keybd_event","int",$notes[$i][0][3],"int",0,"long",2,"long",0)
+			send("{" & $notes[$i][0][3] & " up}")
 		 EndIf
 		 $i +=1
 		 if $i > $notes[0][0][0] then return 1
 		 if $exit = 1 then return 1
+		 $limit = $notes[$i][3][1] + 1000
 	  EndIf
    WEnd
 EndFunc
 
-func aimbot($notes,$coords,$spinners)
+func aimbot($notes,$spinners)
    GUICtrlSetData($Labelstatus2,"Running Aimbot")
    $i = 1
    $j = 2
    $k = 1
-  ; $speed = $bpm[1][2]
+   ;$speed = $bpm[1][2]
+   $limit = $notes[$i][3][1] + 1000
    while 1
-	  $limit = $notes[$i][3][1] + 1000
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
 	  if $ms < $limit Then
 	  if $ms >= $notes[$i][3][1] - $movetime Then
-		 ;smoothmove($notes,$i,$movetime,$ms)
+		 smoothmove($notes,$i,$ms)
 	  EndIf
 	  if $ms >= $notes[$i][3][1] Then
 		 mousemove($notes[$i][1][1],$notes[$i][2][1],0)
@@ -65,23 +68,24 @@ func aimbot($notes,$coords,$spinners)
 		 $i +=1
 		 if $i > $notes[0][0][0] then return 1
 		 if $exit = 1 then return 1
+		 $limit = $notes[$i][3][1] + 1000
 	  EndIf
       EndIf
    WEnd
 EndFunc
 
-func aimcorrection($coords,$notes,$spinners)
+func aimcorrection($notes,$spinners)
    $i = 1
    $k = 1
+   $limit = $notes[$i][3][1] + 1000
    while 1
-	  ;dllcall($ntdll,"dword","NtDelayExecution","int",0,"int64*",$sleep)
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
-	  if $ms < 1000000 Then
-	  if $ms >= $coords[$i][3] Then
+	  if $ms < $limit Then
+	  if $ms >= $notes[$i][3][1] Then
 		 $mousepos = mouseGetPos()
-		 $diffx = $coords[$i][1] - $mousepos[0]
-		 $diffy = $coords[$i][2] - $mousepos[1]
+		 $diffx = $notes[$i][1][1] - $mousepos[0]
+		 $diffy = $notes[$i][2][1] - $mousepos[1]
 		 $linelenght = sqrt(($diffx^2) + ($diffy^2))
 		 if $linelenght <= $correctionradius Then
             $diffx /= 2
@@ -89,33 +93,34 @@ func aimcorrection($coords,$notes,$spinners)
 		    mousemove($mousepos[0] + $diffx,$mousepos[1] + $diffy,0)
 		 EndIf
 		 if $spin = 1 Then
-		 if $notes[$i][5] = "spinner" Then
-			mousemove($coords[$i][1],$coords[$i][2],0)
+		 if $notes[$i][0][1] = "spinner" Then
+			mousemove($notes[$i][1][1],$notes[$i][2][1],0)
 		    spin($spinners[$k][4])
-			mousemove($coords[$i][1],$coords[$i][2],0)
+			mousemove($notes[$i][1][1],$notes[$i][2][1],0)
 			$k += 1
 		 EndIf
 		 EndIf
 		 $i+=1
-		 if $i > $coords[0][0] then return 1
+		 if $i > $notes[0][0][0] then return 1
 		 if $exit = 1 then return 1
+		 $limit = $notes[$i][3][1] + 1000
 	  EndIf
       EndIf
    WEnd
 EndFunc
 
-func relaxcorrection($coords,$notes,$spinners)
+func relaxcorrection($notes,$spinners)
    $i = 1
    $k = 1
+   $limit = $notes[$i][3][1] + 1000
    while 1
-	  ;dllcall($ntdll,"dword","NtDelayExecution","int",0,"int64*",$sleep)
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
-	  if $ms < 1000000 Then
-	  if $ms >= $notes[$i][1] Then
+	  if $ms < $limit Then
+	  if $ms >= $notes[$i][3][1] Then
 		 $mousepos = mouseGetPos()
-		 $diffx = $coords[$i][1] - $mousepos[0]
-		 $diffy = $coords[$i][2] - $mousepos[1]
+		 $diffx = $notes[$i][1][1] - $mousepos[0]
+		 $diffy = $notes[$i][2][1] - $mousepos[1]
 		 $linelenght = sqrt(($diffx^2) + ($diffy^2))
 		 if $linelenght <= $correctionradius Then
             $diffx /= 2
@@ -123,31 +128,31 @@ func relaxcorrection($coords,$notes,$spinners)
 		    mousemove($mousepos[0] + $diffx,$mousepos[1] + $diffy,0)
 		 EndIf
 		 if $usemouse = 1 Then
-		    mousedown($notes[$i][3])
+		    mousedown($notes[$i][0][2])
 	     Else
-		    send("{" & $notes[$i][4] & " down}")
+		    send("{" & $notes[$i][0][3] & " down}")
 		 EndIf
 		 if $spin = 1 Then
-		 if $notes[$i][5] = "spinner" Then
-			mousemove($coords[$i][1],$coords[$i][2],0)
+		 if $notes[$i][0][1] = "spinner" Then
+			mousemove($notes[$i][1][1],$notes[$i][2][1],0)
 		    spin($spinners[$k][4])
-			mousemove($coords[$i][1],$coords[$i][2],0)
+			mousemove($notes[$i][1][1],$notes[$i][2][1],0)
 			$k += 1
 		 EndIf
 		 EndIf
 		 while 1
 			DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
-			if DllStructGetData($buffer,1) >= $notes[$i][2] then exitloop
-			;dllcall($ntdll,"dword","NtDelayExecution","int",0,"int64*",$sleep)
+			if DllStructGetData($buffer,1) >= $notes[$i][3][2] then exitloop
 		 WEnd
 		 if $usemouse = 1 Then
-		    mouseup($notes[$i][3])
+		    mouseup($notes[$i][0][2])
 		 Else
-			send("{" & $notes[$i][4] & " up}")
+			send("{" & $notes[$i][0][3] & " up}")
 		 EndIf
 		 $i +=1
-		 if $i > $notes[0][0] Then return -1
+		 if $i > $notes[0][0][0] Then return -1
 		 if $exit = 1 then return 1
+		 $limit = $notes[$i][3][1] + 1000
 	  EndIf
 	  EndIf
    WEnd
@@ -158,12 +163,12 @@ func relaxaimbot($notes,$spinners)
    $j = 2
    $k = 1
    $l = 1
+   $limit = $notes[$i][3][1] + 1000
    while 1
-	 ; dllcall($ntdll,"dword","NtDelayExecution","int",0,"int64*",$sleep)
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
 	  consolewrite($ms & @CRLF)
-	  if $ms < 1000000 Then
+	  if $ms < $limit Then
 	  if $ms >= $notes[$i][3][1] - $movetime Then
 		 smoothmove($notes,$i,$ms)
 	  EndIf
@@ -186,7 +191,6 @@ func relaxaimbot($notes,$spinners)
 		 while 1
 			DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 			if DllStructGetData($buffer,1) >= $notes[$k][3][2] then exitloop
-			;dllcall($ntdll,"dword","NtDelayExecution","int",0,"int64*",$sleep)
 		 WEnd
 		 if $usemouse = 1 Then
 		    mouseup($notes[$i][0][2])
@@ -197,6 +201,7 @@ func relaxaimbot($notes,$spinners)
 		 $i +=1
 		 if $i > $notes[0][0][0] then return 1
 		 if $exit = 1 then return 1
+		 $limit = $notes[$i][3][1] + 1000
 	  EndIf
       EndIf
    WEnd
