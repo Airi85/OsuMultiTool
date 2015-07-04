@@ -1,158 +1,3 @@
-func getcoords($version,$hitobjects);get the coordinates of the hit objects
-   $cordsmax = 7
-   if $version = 9 then
-	  $sliderparam = 8
-	  $islider = 6
-   ElseIf $version = 14 then
-	  $sliderparam = 8
-	  $islider = 6
-   Else
-	  $sliderparam = 8
-	  $islider = 6
-   EndIf
-   consolewrite($version)
-   dim $cords[$hitobjects[0]+1][$cordsmax]
-   for $i = 1 to $hitobjects[0]
-	  $temp = stringsplit($hitobjects[$i],",")
-	  if $temp[0] >= $sliderparam Then
-			$reversepoints = $temp[7]
-		 $stemp = stringsplit($temp[$islider],"|")
-		 if $reversepoints >= 2 Then
-			$m = 1
-			$sstemp = $stemp
-			$sstemp[1] = $temp[1] & ":" & $temp[2]
-			;_ArrayDisplay($sstemp)
-			$extraway = $sstemp[0] - 1
-		    for $l = 1 to $reversepoints - 1
-			   for $n = 1 to $extraway
-			   $stemp[0] += 1
-			   redim $stemp[$stemp[0]+1]
-			   ;if $sstemp
-			   $stemp[$stemp[0]] = $sstemp[$sstemp[0]-$m]
-			   $m += 1
-			   if $m >= $sstemp[0] Then
-				  $m = 0
-			   EndIf
-			   Next
-			Next
-		 EndIf
-		 $newcordsmax = ($stemp[0] * 2) + 3
-		 if $newcordsmax > $cordsmax then
-			$cordsmax = $newcordsmax
-			redim $cords[$hitobjects[0]+1][$cordsmax]
-		 EndIf
-		 $cords[$i][0] = $stemp[0] - 1
-		 $cords[$i][4] = $stemp[1]
-		 for $j = 1 to $cords[$i][0]
-			$k = ($j*2) + 3
-			$dpos = stringinstr($stemp[$j+1],":")
-			$cords[$i][$k] = round((int(stringleft($stemp[$j+1],$dpos-1)) + $xadd) * $xmod)
-			$cords[$i][$k+1] = round((int(stringmid($stemp[$j+1],$dpos+1)) + $yadd) * $ymod) - $ycorrection
-		 Next
-	  Else
-		 $cords[$i][0] = 0
-	  EndIf
-	  $cords[$i][1] = round(($temp[1] + $xadd) * $xmod)
-	  $cords[$i][2] = round(($temp[2] + $yadd) * $ymod) - $ycorrection
-	  $cords[$i][3] = $temp[3] - $slideracc
-   Next
-   $cords[0][0] = $hitobjects[0]
-   return $cords
-EndFunc
-
-func oldslidermove($coords,$j,$speed,$firstms);move through the slider(2+way sliders make the ball go back before it reachs the point(idk how much before) this makes the slider to desync, sliderspdcorrection try to correct that making the mouse go a bit slower but may desync in long sliders)
-   dim $pixelsptms[3]
-   dim $orpixelsptms[3]
-   $orpixelsptms[1] = ($speed / 50) * $xmod * $sliderspdcorrection
-   $orpixelsptms[2] = ($speed / 50) * $ymod * $sliderspdcorrection
-   $firstms += 12
-   dim $currcoord[3]
-   $currcoord[1] = $coords[$j][1][1]
-   $currcoord[2] = $coords[$j][2][1]
-   dim $ready[3]
-   $ready[1] = 2
-   $ready[2] = 3
-   dim $cmpcoord[3]
-   dim $difference[3]
-   $teste = $coords[$j][1][$coords[$j][1][0]]
-   for $i = 2 to $coords[$j][1][0]
-	  if $coords[$j][1][$i] - $currcoord[1] < 0 Then
-		 if $orpixelsptms[1] > 0 then
-			$orpixelsptms[1] *= -1
-		 EndIf
-	  Else
-		  if $orpixelsptms[1] < 0 then
-			$orpixelsptms[1] *= -1
-		 EndIf
-	  EndIf
-	  if $coords[$j][2][$i] - $currcoord[2] < 0 Then
-		 if $orpixelsptms[2] > 0 then
-			$orpixelsptms[2] *= -1
-		 EndIf
-	  Else
-		  if $orpixelsptms[2] < 0 then
-			$orpixelsptms[2] *= -1
-		 EndIf
-	  EndIf
-	  $difference[1] = $currcoord[1] - $coords[$j][1][$i]
-	  $difference[2] = $currcoord[2] - $coords[$j][2][$i]
-	  if $difference[1] < 0 then $difference[1] *= -1
-	  if $difference[2] < 0 then $difference[2] *= -1
-	  if $difference[1] > $difference[2] Then
-		 $pixelsptms[1] = $orpixelsptms[1]
-		 $pixelsptms[2] = $orpixelsptms[2] * ($difference[2] / $difference[1])
-	  elseif $difference[1] < $difference[2] Then
-		 $pixelsptms[2] = $orpixelsptms[2]
-		 $pixelsptms[1] = $orpixelsptms[1] * ($difference[1] / $difference[2])
-	  Else
-		 $pixelsptms[1] = $orpixelsptms[1]
-		 $pixelsptms[2] = $orpixelsptms[2]
-	  EndIf
-	  while 1
-		 DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
-	     $ms = DllStructGetData($buffer,1)
-		 if $coords[0][0][0] <> $j Then
-		    if $ms >= $coords[$j+1][3][1] Then
-			   return 1
-		    EndIf
-		 EndIf
-		 if $ms >= $firstms Then
-			$currcoord[1] += $pixelsptms[1]
-			$currcoord[2] += $pixelsptms[2]
-			if $pixelsptms[1] < 0 Then
-			   if $currcoord[1] <= $coords[$j][1][$i] Then
-				  $currcoord[1] = $coords[$j][1][$i]
-			      $ready[1] = 1
-			   EndIf
-			Else
-			   if $currcoord[1] >= $coords[$j][1][$i] Then
-			      $currcoord[1] = $coords[$j][1][$i]
-			      $ready[1] = 1
-			   EndIf
-			EndIf
-			if $pixelsptms[2] < 0 then
-			   if $currcoord[2] <= $coords[$j][2][$i] Then
-			      $currcoord[2] = $coords[$j][2][$i]
-			      $ready[2] = 1
-			   EndIf
-			Else
-			   if $currcoord[2] >= $coords[$j][2][$i] Then
-			      $currcoord[2] = $coords[$j][2][$i]
-			      $ready[2] = 1
-			   EndIf
-			EndIf
-			if $ready[1] = $ready[2] Then
-			   $ready[1] = 2
-			   $ready[2] = 3
-			   ExitLoop
-			EndIf
-			mousemove($currcoord[1],$currcoord[2],0)
-			$firstms += 12
-		 EndIf
-	  WEnd
-   Next
-EndFunc
-
 func smoothmove($coords,$j,$firstms);make mouse move to the note, acceleration and alt point not working, was meant to do a circular movement(idk whats wrong in the math still testing)
    dim $currcoord[3]
    dim $diff[3]
@@ -526,9 +371,6 @@ func slidermove($i,$notes,$firstms)
    EndIf
 EndFunc
 
-
-
-
 Func _Bezier_GetPoint($B, $t)
     Local $n = UBound($B) - 1
     For $k = 1 To $n
@@ -542,7 +384,7 @@ Func _Bezier_GetPoint($B, $t)
     $ret[2] = $B[0][2]
     Return $ret
 EndFunc
-;==========(WIP)functions below==============
+
 func getBcurvepoint($basepoints,$n,$t)
    $x = 0
    $y = 0
@@ -622,22 +464,6 @@ func getPcircle($basepoints,$tmoves)
       $atan = abs(round(ATan($HeightLine/$WidthLine)*$rconvert,0))
 	  $Angle[$i] = fixangle($basepoints[$i][1]-$Xcenter,$basepoints[$i][2]-$Ycenter,$atan)
    Next
-   #cs
-   if positive($Angle[1] - $Angle[2]) < 180 Then
-      if $Angle[1] < $Angle[2] then
-	     $i = $Angle[1] + ((positive($Angle[3] - $Angle[1])) * $t)
-      Else
-	     $i = $Angle[1] - ((positive($Angle[3] - $Angle[1])) * $t)
-      EndIf
-   Else
-	  if $Angle[1] < $Angle[2] then
-	     $i = $Angle[1] - ((positive($Angle[3] - $Angle[1])) * $t)
-      Else
-	     $i = $Angle[1] + ((positive($Angle[3] - $Angle[1])) * $t)
-      EndIf
-   EndIf
-   #ce
-   ;_ArrayDisplay($Angle)
    local $finalcoords[$tmoves+1][3]
    for $j = 1 to $tmoves
 	  $t = $j * (1 / $tmoves)
@@ -669,13 +495,11 @@ func getPcircle($basepoints,$tmoves)
    EndIf
    if $i <= 0 then $i += 360
    if $i > 360 then $i -= 360
-   ;msgbox(0,"",$i)
    $cos = cos($i * $convert) * $radius
    $sin = sin($i * $convert) * $radius
    $finalcoords[$j][1] = $Xcenter + $cos
    $finalcoords[$j][2] = $Ycenter + $sin
    Next
-   ;local $finalcoords[3] = [2,$Xcenter + $cos,$Ycenter + $sin]
    return $finalcoords
 EndFunc
 

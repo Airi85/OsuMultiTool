@@ -157,18 +157,18 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 	     if $notes[$i][3][1] + $maxinterval > $notes[$i+1][3][1] Then
 		    if $notes[$i-1][0][2] = "left" Then
 	           $notes[$i][0][2] = "right"
-		       $notes[$i][0][3] = $keycode[2]
+		       $notes[$i][0][3] = $key[2]
 		    Else
 			   $notes[$i][0][2] = "left"
-		       $notes[$i][0][3] = $keycode[1]
+		       $notes[$i][0][3] = $key[1]
 		    EndIf
 	     Else
 		    $notes[$i][0][2] = "left"
-		    $notes[$i][0][3] = $keycode[1]
+		    $notes[$i][0][3] = $key[1]
 	     EndIf
 	  Else
 		 $notes[$i][0][2] = "left"
-		 $notes[$i][0][3] = $keycode[1]
+		 $notes[$i][0][3] = $key[1]
 	  EndIf
    Next
    $notes[0][0][0] = $hitobjects[0]
