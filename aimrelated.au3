@@ -309,7 +309,7 @@ func slidermove($i,$notes,$firstms)
    $firstms += 10
    $moves = floor(($notes[$i][3][3] / $notes[$i][7][1]) / 10)
    $nmoves = (1 / $moves)
-   if $notes[$i][6][1] = "B" or $notes[$i][6][1] = "L" or $notes[$i][6][1] = "C" then
+   if $notes[$i][6][1] = "B" or $notes[$i][6][1] = "L" or $notes[$i][6][1] = "C" or $notes[$i][6][1] = "PL" then
 	  local $basepoints[$notes[$i][1][0]][3]
 	  for $j = 0 to $notes[$i][1][0]-1
 		 $basepoints[$j][1] = $notes[$i][1][$j+1]

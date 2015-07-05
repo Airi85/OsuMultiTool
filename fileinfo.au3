@@ -136,6 +136,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 $notes[$i][6][1] = $atemp[1]
 		 $notes[$i][7][1] = $temp[7]
 		 $notes[$i][8][1] = $temp[8]
+		 if $notes[$i][1][0] = 2 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "PL"
 	  Elseif int($temp[6]) > int($temp[3]) Then
 	     $notes[$i][0][1] = "spinner"
 		 $notes[$i][1][1] = getabsolutecoords($temp[1],0)
