@@ -123,13 +123,21 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 EndIf
 		 $notes[$i][1][1] = getabsolutecoords($temp[1],0)
 		 $notes[$i][2][1] = getabsolutecoords($temp[2],1)
+		 $k = 2
+		 $red = 0
 		 for $j = 2 to $atemp[0]
-			$notes[$i][1][$j] = getabsolutecoords(stringleft($atemp[$j],stringinstr($atemp[$j],":")-1),0)
-			$notes[$i][2][$j] = getabsolutecoords(stringtrimleft($atemp[$j],stringinstr($atemp[$j],":")),1)
+			if $atemp[$j] <> $atemp[$j-1] Then
+			   $notes[$i][1][$k] = getabsolutecoords(stringleft($atemp[$j],stringinstr($atemp[$j],":")-1),0)
+			   $notes[$i][2][$k] = getabsolutecoords(stringtrimleft($atemp[$j],stringinstr($atemp[$j],":")),1)
+			   $k += 1
+			Else
+			   $red += 1
+			   $notes[$i][6][$k] = 1
+			EndIf
 			;msgbox(0,"",$notes[$i][1][$j] & @CRLF & $j)
 		 Next
-		 $notes[$i][1][0] = $atemp[0]
-		 $notes[$i][2][0] = $atemp[0]
+		 $notes[$i][1][0] = $atemp[0] - $red
+		 $notes[$i][2][0] = $atemp[0] - $red
 		 $notes[$i][3][1] = $temp[3] - $acc
 		 $notes[$i][3][2] = calcslidertime($bpm,$temp[3],$temp[8],$diff[5],$temp[7]) + $holdtime
 		 $notes[$i][3][3] = $notes[$i][3][2] - $notes[$i][3][1]
