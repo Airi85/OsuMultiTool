@@ -112,6 +112,7 @@ global $final
 global $exit
 global $spin
 global $useinternal = 0
+global $hardrock = 0
 Global $buffer = DllStructCreate('dword')
 global $bufferptr = DllStructGetPtr($buffer)
 global $buffersize = DllStructGetSize($buffer)
@@ -148,6 +149,7 @@ global $Labelstatus = GUICtrlCreateLabel("Status:", 400, 304, 37, 17)
 global $Labelstatus2 = GUICtrlCreateLabel("Not Initialized", 438, 304, 150, 17)
 $initbutton = GUICtrlCreateButton("Initialize", 264, 312, 75, 25)
 $updatebutton = GUICtrlCreateButton("Update Song List", 256, 16, 99, 25)
+$hrbox = GUICtrlCreateCheckbox("Hardrock", 528, 80, 97, 17)
 guiregistermsg($WM_COMMAND,"buttonpressed")
 GUICtrlSetColor($Labelready2,"0xFF0000")
 GUICtrlSetColor($Labelstatus2,"0xFF0000")

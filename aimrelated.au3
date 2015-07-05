@@ -362,6 +362,13 @@ func getabsolutecoords($x,$type)
    if $type = 0 Then
 	  $y = ($osuCoordX + ($x * $scale) + $marginLeft)
    elseif $type = 1 Then
+	  if $hardrock = 1 Then
+	     if $x > 192 then
+			$x = 192 - ($x - 192)
+		 Elseif $x < 192 then
+			$x = 192 + (192 - $x)
+		 EndIf
+	  EndIf
 	  $y = ($osuCoordY + ($x * $scale) + $marginTop)
    EndIf
    return $y

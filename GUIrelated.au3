@@ -264,6 +264,11 @@ func mainguiloop(); main gui loop for data
 		 Else
 		 guictrlsetdata($Labelready2,"No")
 		 GUICtrlSetColor($Labelready2,"0xFF0000")
+		 if guictrlread($hrbox) = $GUI_CHECKED then
+			$hardrock = 1
+		 Else
+			$hardrock = 0
+		 EndIf
 		 $songfile = $listdiff[$diffselected][2]
 		 $version = getversion()
 		 $difficulty = getdiff()
