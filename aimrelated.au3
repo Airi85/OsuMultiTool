@@ -1,103 +1,38 @@
 func smoothmove($coords,$j,$firstms);make mouse move to the note, acceleration and alt point not working, was meant to do a circular movement(idk whats wrong in the math still testing)
    dim $currcoord[3]
    dim $diff[3]
-   dim $tempdiff[3]
    dim $pixelsptms[3]
-   dim $acceleration[3]
-   $actgap = ($coords[$j][3][1]-$firstms) / 6
-   $acttime = $firstms + $actgap
-   $currcoord[1] = mousegetpos(0)
-   $currcoord[2] = mousegetpos(1)
+   if $j > 1 Then
+	  if mod($coords[$j-1][7][1],2) = 0 Then
+		 $currcoord[1] = $coords[$j-1][1][1]
+         $currcoord[2] = $coords[$j-1][2][1]
+	  Else
+         $currcoord[1] = $coords[$j-1][1][$coords[$j-1][1][0]]
+         $currcoord[2] = $coords[$j-1][2][$coords[$j-1][2][0]]
+      EndIf
+   Else
+	  $currcoord[1] = mousegetpos(0)
+	  $currcoord[2] = mousegetpos(1)
+   EndIf
+   if $coords[$j][1][1] = $currcoord[1] then
+      if $coords[$j][2][1] = $currcoord[2] then return 1
+   EndIf
+   if $coords[$j][3][1] <= $firstms then return 1
    $diff[1] = $coords[$j][1][1] - $currcoord[1]
    $diff[2] = $coords[$j][2][1] - $currcoord[2]
-   if $diff[1] < 0 Then
-	  $tempdiff[1] = $diff[1] * -1
-   Else
-      $tempdiff[1] = $diff[1]
-   EndIf
-   if $diff[2] < 0 Then
-	  $tempdiff[2] = $diff[2] * -1
-   Else
-      $tempdiff[2] = $diff[2]
-   EndIf
    $pixelsptms[1] = ($diff[1] / ($coords[$j][3][1]-$firstms)) * 12
    $pixelsptms[2] = ($diff[2] / ($coords[$j][3][1]-$firstms)) * 12
-   $linelenght = sqrt(($tempdiff[1]^2)+($tempdiff[2]^2))
-   dim $spacing[3]
-   for $i = 1 to 2
-   if $diff[$i] > 0 then
-      $spacing[$i] = $linelenght / 10
-   elseif $diff[$i] < 0 then
-      $spacing[$i] = $linelenght / -10
-   Else
-	  $spacing[$i] = 0
-	  $acceleration[$i] = 0
-   EndIf
-   Next
-   dim $altpoint[3]
-   $altpoint[1] = $currcoord[1] + ($diff[1] / 2)
-   $altpoint[2] = $currcoord[2] + ($diff[2] / 2)
-   dim $angle[3]
-   $angle[1] = $tempdiff[1] / ($tempdiff[1] + $tempdiff[2])
-   $angle[2] = $tempdiff[2] / ($tempdiff[1] + $tempdiff[2])
-   $altpoint[1] += $spacing[2] * $angle[2]
-   $altpoint[2] += $spacing[1] * $angle[1]
-   ;if $diff[1] > $diff[2] Then
-      ;$pixelsptms[2] *= ($diff[2] / $diff[1])
-  ; elseif $diff[1] < $diff[2] Then
-	  ;$pixelsptms[1] *= ($diff[1] / $diff[2])
-   ;EndIf
-   $acceleration[1] = (($altpoint[1] - $currcoord[1]) / (($coords[$j][3][1] - $firstms)/2)) * 12
-   $acceleration[2] = (($altpoint[2] - $currcoord[2]) / (($coords[$j][3][1] - $firstms)/2)) * 12
    dim $ready[5]
    $ready[1] = 2
    $ready[2] = 3
    $ready[3] = 2
    $ready[4] = 3
    $firstms += 12
-   $actmult = 2
    $count = 0
    while 1
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
       $ms = DllStructGetData($buffer,1)
 	  if $ms >= $coords[$j][3][1] Then return 1
-	  if $ms >= $acttime Then
-		 $acceleration *= $actmult
-		 $acttime += $actgap
-	  EndIf
-	  if $acceleration[1] < 0 Then
-		 if $currcoord[1] <= $altpoint[1] then
-			$acceleration[1] = 0
-			$ready[1] = 1
-		 EndIf
-	  Elseif $acceleration[1] > 0 then
-	     if $currcoord[1] >= $altpoint[1] then
-			$acceleration[1] = 0
-			$ready[1] = 1
-		 EndIf
-	  EndIf
-	  if $acceleration[2] < 0 Then
-		 if $currcoord[2] <= $altpoint[2] then
-			$acceleration[2] = 0
-			$ready[2] = 1
-		 EndIf
-	  Elseif $acceleration[2] > 0 then
-	     if $currcoord[2] >= $altpoint[2] then
-			$acceleration[2] = 0
-			$ready[2] = 2
-		 EndIf
-	  EndIf
-	  if $ready[1] = $ready[2] Then
-		 $count += 1
-		 if $count = 2 Then return -1
-		 $acceleration[1] *= -1
-		 $acceleration[2] *= -1
-		 $altpoint[1] = $coords[$j][1][1]
-		 $altpoint[2] = $coords[$j][2][1]
-		 $actmult = 0.5
-	     $ready[1] = 2
-		 $ready[2] = 3
-	  EndIf
 	  if $pixelsptms[1] < 0 Then
 		 if $currcoord[1] <= $coords[$j][1][1] Then
 			$currcoord[1] = $coords[$j][1][1]
@@ -133,7 +68,6 @@ func smoothmove($coords,$j,$firstms);make mouse move to the note, acceleration a
 	  EndIf
    WEnd
 EndFunc
-
 
 func calcbpm($diff,$red,$green);calculates the final bpm in every point
    dim $tempbpm[$red[0][0] + $green[0][0] + 1][4]
@@ -356,7 +290,9 @@ func slidermove($i,$notes,$firstms)
 	     for $j = $start+$sadd to $end step $sadd
 	        while 1
 		       DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
-		       if DllStructGetData($buffer,1) >= $firstms then
+		       $ms = DllStructGetData($buffer,1)
+			   if $ms >= $notes[$i+1][3][1] then return 1
+			   if $ms >= $firstms Then
 			      mousemove($tomove[$j][1],$tomove[$j][2],0)
 			      $firstms += 10
 			      ExitLoop
