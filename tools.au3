@@ -78,6 +78,8 @@ func aimcorrection($notes,$spinners)
    $i = 1
    $k = 1
    $limit = $notes[$i][3][1] + 1000
+   $diameter = getnotediameter()
+   $radius = $diameter / 2
    while 1
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
@@ -87,10 +89,12 @@ func aimcorrection($notes,$spinners)
 		 $diffx = $notes[$i][1][1] - $mousepos[0]
 		 $diffy = $notes[$i][2][1] - $mousepos[1]
 		 $linelenght = sqrt(($diffx^2) + ($diffy^2))
-		 if $linelenght <= $correctionradius Then
-            $diffx /= 2
-		    $diffy /= 2
-		    mousemove($mousepos[0] + $diffx,$mousepos[1] + $diffy,0)
+		 if $linelenght >= $radius Then
+		    if $linelenght <= $correctionradius Then
+               $diffx /= 2
+		       $diffy /= 2
+		       mousemove($mousepos[0] + $diffx,$mousepos[1] + $diffy,0)
+		    EndIf
 		 EndIf
 		 if $spin = 1 Then
 		 if $notes[$i][0][1] = "spinner" Then
@@ -113,6 +117,8 @@ func relaxcorrection($notes,$spinners)
    $i = 1
    $k = 1
    $limit = $notes[$i][3][1] + 1000
+   $diameter = getnotediameter()
+   $radius = ($diameter / 2) * 0.80
    while 1
 	  DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	  $ms = DllStructGetData($buffer,1)
@@ -122,10 +128,12 @@ func relaxcorrection($notes,$spinners)
 		 $diffx = $notes[$i][1][1] - $mousepos[0]
 		 $diffy = $notes[$i][2][1] - $mousepos[1]
 		 $linelenght = sqrt(($diffx^2) + ($diffy^2))
-		 if $linelenght <= $correctionradius Then
-            $diffx /= 2
-		    $diffy /= 2
-		    mousemove($mousepos[0] + $diffx,$mousepos[1] + $diffy,0)
+		 if $linelenght >= $radius Then
+		    if $linelenght <= $correctionradius + $radius Then
+               $diffx /= 2
+		       $diffy /= 2
+		       mousemove($mousepos[0] + $diffx,$mousepos[1] + $diffy,0)
+		    EndIf
 		 EndIf
 		 if $usemouse = 1 Then
 		    mousedown($notes[$i][0][2])

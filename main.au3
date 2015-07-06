@@ -108,6 +108,7 @@ global $songfile
 global $version
 global $coords
 global $final
+global $diff
 ;global $bpm
 global $exit
 global $spin

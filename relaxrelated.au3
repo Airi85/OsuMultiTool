@@ -29,3 +29,11 @@ func calcslidertime($bpm,$inittime,$pixelLength,$sliderspdmult,$repeat)
    return $totalslidertime
 EndFunc
 
+func getnotediameter()
+   $sdiameter = 104 - ($diff[2] * 8)
+   $dmult = $screenres[1] / 640
+   $finaldiameter = $dmult * $sdiameter
+   return $finaldiameter
+EndFunc
+
+
