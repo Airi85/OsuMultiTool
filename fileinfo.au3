@@ -105,6 +105,7 @@ EndFunc
 
 func setnotesparam($hitobjects,$version,$diff,$bpm)
    local $notes[$hitobjects[0]+1][13][5]
+   dim $basepoints[2][3]
    $keycode = getkeycodes()
    $curhigh = 5
    for $i = 1 to $hitobjects[0]
@@ -123,16 +124,19 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 EndIf
 		 $notes[$i][1][1] = getabsolutecoords($temp[1],0)
 		 $notes[$i][2][1] = getabsolutecoords($temp[2],1)
-		 $k = 2
+		 $k = 1
 		 $red = 0
+		 $l = 0
 		 for $j = 2 to $atemp[0]
 			if $atemp[$j] <> $atemp[$j-1] Then
+			   $k += 1
 			   $notes[$i][1][$k] = getabsolutecoords(stringleft($atemp[$j],stringinstr($atemp[$j],":")-1),0)
 			   $notes[$i][2][$k] = getabsolutecoords(stringtrimleft($atemp[$j],stringinstr($atemp[$j],":")),1)
-			   $k += 1
 			Else
 			   $red += 1
-			   $notes[$i][6][$k] = 1
+			   $l += 1
+			   ;msgbox(0,"",$k)
+			   $notes[$i][4][$l] = $k
 			EndIf
 			;msgbox(0,"",$notes[$i][1][$j] & @CRLF & $j)
 		 Next
@@ -141,10 +145,93 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 $notes[$i][3][1] = $temp[3] - $acc
 		 $notes[$i][3][2] = calcslidertime($bpm,$temp[3],$temp[8],$diff[5],$temp[7]) + $holdtime
 		 $notes[$i][3][3] = $notes[$i][3][2] - $notes[$i][3][1]
+		 $notes[$i][4][0] = $l
 		 $notes[$i][6][1] = $atemp[1]
 		 $notes[$i][7][1] = $temp[7]
 		 $notes[$i][8][1] = $temp[8]
-		 if $notes[$i][1][0] = 2 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "PL"
+		 if $notes[$i][4][0] > 0 Then
+			if $notes[$i][6][1] = "P" then
+			   if $notes[$i][4][1] = 2 Then
+			      $notes[$i][6][1] = "PL"
+				  $notes[$i][8][0] = sqrt(((reversecoords($notes[$i][1][1],0) - reversecoords($notes[$i][1][2],0))^2) + ((reversecoords($notes[$i][2][1],1) - reversecoords($notes[$i][2][2],1))^2))
+			   ElseIf $notes[$i][4][1] = 3
+				  redim $basepoints[4][3]
+				  for $h = 1 to 3
+					 $basepoints[$h][1] = reversecoords($notes[$i][1][$h],0)
+					 $basepoints[$h][2] = reversecoords($notes[$i][2][$h],1)
+				  Next
+				  $notes[$i][8][0] = getPlenght($basepoints)
+			   EndIf
+			ElseIf $notes[$i][6][1] = "B" Then
+			   redim $basepoints[$notes[$i][4][1]][3]
+			   for $h = 0 to $notes[$i][4][1]-1
+				  $basepoints[$h][1] = reversecoords($notes[$i][1][$h+1],0)
+				  $basepoints[$h][2] = reversecoords($notes[$i][2][$h+1],1)
+			   Next
+			   $notes[$i][8][0] = getbezierlenght($basepoints)
+			ElseIf $notes[$i][6][1] = "L" Then
+			   $notes[$i][8][0] = sqrt(((reversecoords($notes[$i][1][1],0) - reversecoords($notes[$i][1][2],0))^2) + ((reversecoords($notes[$i][2][1],1) - reversecoords($notes[$i][2][2],1))^2))
+			EndIf
+			$notes[$i][3][4] = calcslidertime($bpm,$temp[3],$notes[$i][8][0],$diff[5],$temp[7]) - $temp[3]
+			for $j = 1 to $notes[$i][4][0]
+			   if $j = $notes[$i][4][0] then
+			      $sliderend = $notes[$i][1][0]
+			   Else
+			      $sliderend = $notes[$i][4][$j+1]
+			   EndIf
+			   if $notes[$i][6][1] = "B" Then
+				  $notes[$i][6][$notes[$i][4][$j]] = "B"
+				  redim $basepoints[$sliderend - $notes[$i][4][$j] + 1][3]
+				  for $h = 0 to $sliderend - $notes[$i][4][$j]
+					 $basepoints[$h][1] = reversecoords($notes[$i][1][$h + $notes[$i][4][$j]],0)
+					 $basepoints[$h][2] = reversecoords($notes[$i][2][$h + $notes[$i][4][$j]],1)
+				  Next
+				  $notes[$i][8][$notes[$i][4][$j]] = getbezierlenght($basepoints)
+			   elseif $notes[$i][6][1] = "L" Then
+				  $notes[$i][6][$notes[$i][4][$j]] = "L"
+				  $notes[$i][8][$notes[$i][4][$j]] = sqrt(((reversecoords($notes[$i][1][$notes[$i][4][$j]],0) - reversecoords($notes[$i][1][$sliderend],0))^2) + ((reversecoords($notes[$i][2][$notes[$i][4][$j]],1) - reversecoords($notes[$i][2][$sliderend],1))^2))
+			   elseif $notes[$i][6][1] = "P"
+				  if $j < $notes[$i][4][0] Then
+					 if $notes[$i][4][$j+1] - $notes[$i][4][$j] + 1 = 2 then
+						$notes[$i][6][$notes[$i][4][$j]] = "PL"
+						$notes[$i][8][$notes[$i][4][$j]] = sqrt(((reversecoords($notes[$i][1][$notes[$i][4][$j]],0) - reversecoords($notes[$i][1][$sliderend],0))^2) + ((reversecoords($notes[$i][2][$notes[$i][4][$j]],1) - reversecoords($notes[$i][2][$sliderend],1))^2))
+					 ElseIf $notes[$i][4][$j+1] - $notes[$i][4][$j] + 1 = 3 then
+						$notes[$i][6][$notes[$i][4][$j]] = "P"
+						redim $basepoints[$sliderend - $notes[$i][4][$j] + 2][3]
+						for $h = 1 to $sliderend - $notes[$i][4][$j] + 1
+						   $basepoints[$h][1] = reversecoords($notes[$i][1][$h + $notes[$i][4][$j]-1],0)
+						   $basepoints[$h][2] = reversecoords($notes[$i][2][$h + $notes[$i][4][$j]-1],1)
+						Next
+						$notes[$i][8][$notes[$i][4][$j]] = getPlenght($basepoints)
+					 Else
+						error(21)
+					 EndIf
+				  Else
+					 if $notes[$i][1][0] - $notes[$i][4][$j] + 1 = 2 then
+						$notes[$i][6][$notes[$i][4][$j]] = "PL"
+					 ElseIf $notes[$i][1][0] - $notes[$i][4][$j] + 1 = 3 then
+						$notes[$i][6][$notes[$i][4][$j]] = "P"
+					 Else
+						error(21)
+					 EndIf
+				  EndIf
+			   Else
+				  error(22)
+			   EndIf
+			   $notes[$i][3][$j+4] = calcslidertime($bpm,$temp[3],$notes[$i][8][$notes[$i][4][$j]],$diff[5],$temp[7]) - $temp[3]
+			   if $j = $notes[$i][4][0] Then
+				  $timeunt = 0
+				  for $h = 4 to $notes[$i][4][0] + 3
+					 $timeunt += $notes[$i][3][$h]
+				  Next
+				  $notes[$i][3][$j+4] = $notes[$i][3][3] - $timeunt
+				  if $notes[$i][3][$j+4] < 0 then error(23)
+			   EndIf
+			Next
+		 Else
+			if $notes[$i][1][0] = 2 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "PL"
+			if $notes[$i][1][0] > 3 and $notes[$i][6][1] = "P" then error(21)
+		 EndIf
 	  Elseif int($temp[6]) > int($temp[3]) Then
 	     $notes[$i][0][1] = "spinner"
 		 $notes[$i][1][1] = getabsolutecoords($temp[1],0)

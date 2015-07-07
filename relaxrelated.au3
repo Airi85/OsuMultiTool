@@ -35,5 +35,3 @@ func getnotediameter()
    $finaldiameter = $dmult * $sdiameter
    return $finaldiameter
 EndFunc
-
-

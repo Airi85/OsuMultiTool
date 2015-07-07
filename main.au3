@@ -352,6 +352,23 @@ func error($Nerror);semi error handler
 	     msgbox(0,"Error","something went wrong : Object Order" & @CRLF & "error code: " & 16)
 	  case 17
 		 msgbox(0,"Error","something went wrong: Fix Timer" & @CRLF & "error code: " & 17)
+	  case 18
+		 msgbox(0,"Error","Failed to get Osu! handle" & @CRLF & "error code: " & 18)
+		 _exit()
+	  case 19
+		 msgbox(0,"Error","Failed to detect Osu! coordinates" & @CRLF & "error code: " & 19)
+		 _exit()
+	  case 20
+		 msgbox(0,"Error","Something went wrong: P slider" & @CRLF & "error code: " & 20)
+		 mainguiloop()
+	  case 21
+		 msgbox(0,"Error","Unsupported slider type" & @CRLF & "error code: " & 21)
+		 mainguiloop()
+	  case 22
+		 msgbox(0,"Error","Unsupported slider type" & @CRLF & "error code: " & 22)
+		 mainguiloop()
+	  case 23
+		 msgbox(0,"Error","Something went wrong: Slider time" & @CRLF & "error code: " & 23)
    EndSwitch
 EndFunc
 
