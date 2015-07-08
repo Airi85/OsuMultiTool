@@ -305,9 +305,11 @@ func setnotestacking(byref $notes)
 	  Elseif $notes[$i][1][1] = $notes[$fs][1][1] and $notes[$i][2][1] = $notes[$fs][2][1] Then
 	     $notes[$i][1][1] -= 4
 		 $notes[$i][2][1] -= 4
+		 $fs = $i
 	  ElseIf $notes[$i][1][1] = $notes[$fs][1][$notes[$fs][1][0]] and $notes[$i][2][1] = $notes[$fs][2][$notes[$fs][1][0]] Then
 		 $notes[$i][1][1] -= 4
 		 $notes[$i][2][1] -= 4
+		 $fs = $i
 	  Else
 	     $fs = $i
 	  EndIf
