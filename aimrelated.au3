@@ -261,6 +261,7 @@ func slidermove($i,$notes,$firstms)
 	  Else
 		 $sliderstart = $notes[$i][4][$k]
 	  EndIf
+	  consolewrite("slider: " & $notes[$i][6][1] & @CRLF & "sliderstart: " & $sliderstart & @CRLF & "sliderend: " & $sliderend & @CRLF)
    if $notes[$i][6][$sliderstart] = "B" or $notes[$i][6][$sliderstart] = "L" or $notes[$i][6][$sliderstart] = "PL" or $notes[$i][6][$sliderstart] = "C" then
 	  local $basepoints[$sliderend - $sliderstart + 1][3]
 	  for $j = 0 to $sliderend - $sliderstart
@@ -291,23 +292,26 @@ func slidermove($i,$notes,$firstms)
 	     $sadd *= -1
 	  Next
    Elseif $notes[$i][6][$sliderstart] = "P" Then
-      local $basepoints[$sliderend - $sliderstart +2][3]
-      for $j = 1 to $sliderend - $sliderstart + 1
-		 $basepoints[$j][1] = $notes[$i][1][$j+$sliderstart]
-		 $basepoints[$j][2] = $notes[$i][2][$j+$sliderstart]
+      local $basepoints[4][3]
+      for $j = 1 to 3
+		 $basepoints[$j][1] = $notes[$i][1][$j+$sliderstart-1]
+		 $basepoints[$j][2] = $notes[$i][2][$j+$sliderstart-1]
 	  Next
-	  $tomove = getPcircle($basepoints,$moves)
+	  ;$tomove = getPcircle($basepoints,$moves)
 	  $start = 0
-	  $end = $moves
-	  $sadd = 1
+	  $end = 1
+	  $sadd = 1 / $moves
 	  for $r = 1 to $notes[$i][7][1] step 1
 	     for $j = $start+$sadd to $end step $sadd
 	        while 1
 		       DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 		       $ms = DllStructGetData($buffer,1)
-			   if $ms >= $notes[$i+1][3][1] then return 1
+			   if $i < $notes[0][0][0] Then
+			      if $ms >= $notes[$i+1][3][1] then return 1
+			   EndIf
 			   if $ms >= $firstms Then
-			      mousemove($tomove[$j][1],$tomove[$j][2],0)
+				  $tomove = getPcircle($basepoints,$j)
+			      mousemove($tomove[1][1],$tomove[1][2],0)
 			      $firstms += 10
 			      ExitLoop
 		       EndIf
@@ -398,7 +402,7 @@ func reversecoords($x,$type)
    return $y
 EndFunc
 
-func getPcircle($basepoints,$tmoves)
+func getPcircle($basepoints,$t)
    $rconvert = 57.295779513082320
    $convert = 0.0174532925199433
    local $angle[4]
@@ -431,42 +435,34 @@ func getPcircle($basepoints,$tmoves)
       $atan = abs(ATan($HeightLine/$WidthLine)*$rconvert)
 	  $Angle[$i] = fixangle($basepoints[$i][1]-$Xcenter,$basepoints[$i][2]-$Ycenter,$atan)
    Next
-   local $finalcoords[$tmoves+1][3]
-   for $j = 1 to $tmoves
-	  $t = $j * (1 / $tmoves)
+   local $finalcoords[2][3]
+   ;for $j = 1 to $tmoves
+	  ;$t = $j * (1 / $tmoves)
 	  consolewrite("t: " & $t & @CRLF)
-   if positive($Angle[2] - $Angle[1]) < 180 and $Angle[2] - $Angle[1] > 0 Then
-	  if $Angle[3] < $Angle[1] Then
-	     $i = $Angle[1] + ((360-(positive($Angle[3] - $Angle[1]))) * $t)
+   $adiff = $Angle[2] - $Angle[1]
+   if $adiff < 0 Then $adiff = 360 - positive($adiff)
+   $adiff2 = $Angle[3] - $Angle[1]
+   if $adiff2 < 0 then $adiff2 = 360 - positive($adiff2)
+   if positive($adiff2) > positive($adiff) Then
+	  if $Angle[1] > $Angle[3] Then
+		 $i = $Angle[1] + ((360-(positive($Angle[3] - $Angle[1]))) * $t)
 	  Else
 		 $i = $Angle[1] + ((positive($Angle[3] - $Angle[1])) * $t)
 	  EndIf
-   Elseif positive($Angle[2] - $Angle[1]) < 180 and $Angle[2] - $Angle[1] < 0 Then
-      if $Angle[3] > $Angle[1] Then
-	     $i = $Angle[1] - ((360-(positive($Angle[3] - $Angle[1]))) * $t)
+   Else
+	  if $Angle[1] < $Angle[3] Then
+		 $i = $Angle[1] - ((360-(positive($Angle[3] - $Angle[1]))) * $t)
 	  Else
 		 $i = $Angle[1] - ((positive($Angle[3] - $Angle[1])) * $t)
-	  EndIf
-   elseif positive($Angle[2] - $Angle[1]) > 180 and $Angle[2] - $Angle[1] > 0 Then
-	  if $Angle[3] > $Angle[1] Then
-	     $i = $Angle[1] - ((360-(positive($Angle[3] - $Angle[1]))) * $t)
-	  Else
-		 $i = $Angle[1] - ((positive($Angle[3] - $Angle[1])) * $t)
-	  EndIf
-   ElseIf positive($Angle[2] - $Angle[1]) > 180 and $Angle[2] - $Angle[1] < 0 Then
-	  if $Angle[3] < $Angle[1] Then
-	     $i = $Angle[1] + ((360-(positive($Angle[3] - $Angle[1]))) * $t)
-	  Else
-		 $i = $Angle[1] + ((positive($Angle[3] - $Angle[1])) * $t)
 	  EndIf
    EndIf
    if $i <= 0 then $i += 360
    if $i > 360 then $i -= 360
    $cos = cos($i * $convert) * $radius
    $sin = sin($i * $convert) * $radius
-   $finalcoords[$j][1] = $Xcenter + $cos
-   $finalcoords[$j][2] = $Ycenter + $sin
-   Next
+   $finalcoords[1][1] = $Xcenter + $cos
+   $finalcoords[1][2] = $Ycenter + $sin
+   ;Next
    return $finalcoords
 EndFunc
 
@@ -522,27 +518,19 @@ func getPlenght($basepoints)
       $atan = abs(ATan($HeightLine/$WidthLine)*$rconvert)
 	  $Angle[$i] = fixangle($basepoints[$i][1]-$Xcenter,$basepoints[$i][2]-$Ycenter,$atan)
    Next
-   if positive($Angle[2] - $Angle[1]) < 180 and $Angle[2] - $Angle[1] > 0 Then
-	  if $Angle[3] < $Angle[1] Then
-	     $anglediff = 360-(positive($Angle[3] - $Angle[1]))
+   $adiff = $Angle[2] - $Angle[1]
+   if $adiff < 0 Then $adiff = 360 - positive($adiff)
+   $adiff2 = $Angle[3] - $Angle[1]
+   if $adiff2 < 0 then $adiff2 = 360 - positive($adiff2)
+   if positive($adiff2) > positive($adiff) Then
+	  if $Angle[1] > $Angle[3] Then
+		 $anglediff = 360-(positive($Angle[3] - $Angle[1]))
 	  Else
 		 $anglediff = positive($Angle[3] - $Angle[1])
 	  EndIf
-   Elseif positive($Angle[2] - $Angle[1]) < 180 and $Angle[2] - $Angle[1] < 0 Then
-      if $Angle[3] > $Angle[1] Then
-	     $anglediff = 360-(positive($Angle[3] - $Angle[1]))
-	  Else
-		 $anglediff = positive($Angle[3] - $Angle[1])
-	  EndIf
-   elseif positive($Angle[2] - $Angle[1]) > 180 and $Angle[2] - $Angle[1] > 0 Then
-	  if $Angle[3] > $Angle[1] Then
-	     $anglediff = 360-(positive($Angle[3] - $Angle[1]))
-	  Else
-		 $anglediff = positive($Angle[3] - $Angle[1])
-	  EndIf
-   ElseIf positive($Angle[2] - $Angle[1]) > 180 and $Angle[2] - $Angle[1] < 0 Then
-	  if $Angle[3] < $Angle[1] Then
-	     $anglediff = 360-(positive($Angle[3] - $Angle[1]))
+   Else
+	  if $Angle[1] < $Angle[3] Then
+		 $anglediff = 360-(positive($Angle[3] - $Angle[1]))
 	  Else
 		 $anglediff = positive($Angle[3] - $Angle[1])
 	  EndIf

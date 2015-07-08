@@ -182,6 +182,14 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 					 $basepoints[$h][2] = reversecoords($notes[$i][2][$h],1)
 				  Next
 				  $notes[$i][8][0] = getPlenght($basepoints)
+			   Else
+				  redim $basepoints[$notes[$i][4][1]][3]
+				  $notes[$i][6][1] = "B"
+			      for $h = 0 to $notes[$i][4][1]-1
+				     $basepoints[$h][1] = reversecoords($notes[$i][1][$h+1],0)
+				     $basepoints[$h][2] = reversecoords($notes[$i][2][$h+1],1)
+			      Next
+			      $notes[$i][8][0] = getbezierlenght($basepoints)
 			   EndIf
 			ElseIf $notes[$i][6][1] = "B" Then
 			   redim $basepoints[$notes[$i][4][1]][3]
@@ -227,7 +235,13 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 						Next
 						$notes[$i][8][$notes[$i][4][$j]] = getPlenght($basepoints)
 					 Else
-						error(21)
+						$notes[$i][6][$notes[$i][4][$j]] = "B"
+						redim $basepoints[$sliderend - $notes[$i][4][$j] + 1][3]
+						for $h = 0 to $sliderend - $notes[$i][4][$j]
+					       $basepoints[$h][1] = reversecoords($notes[$i][1][$h + $notes[$i][4][$j]],0)
+					       $basepoints[$h][2] = reversecoords($notes[$i][2][$h + $notes[$i][4][$j]],1)
+				        Next
+				        $notes[$i][8][$notes[$i][4][$j]] = getbezierlenght($basepoints)
 					 EndIf
 				  Else
 					 if $notes[$i][1][0] - $notes[$i][4][$j] + 1 = 2 then
@@ -235,7 +249,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 					 ElseIf $notes[$i][1][0] - $notes[$i][4][$j] + 1 = 3 then
 						$notes[$i][6][$notes[$i][4][$j]] = "P"
 					 Else
-						error(21)
+						$notes[$i][6][$notes[$i][4][$j]] = "B"
 					 EndIf
 				  EndIf
 			   Else
@@ -253,7 +267,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			Next
 		 Else
 			if $notes[$i][1][0] = 2 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "PL"
-			if $notes[$i][1][0] > 3 and $notes[$i][6][1] = "P" then error(21)
+			if $notes[$i][1][0] > 3 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "B"
 			;if $notes[$i][6][1] = "C" then error(22)
 		 EndIf
 		 if $notes[$i][6][1] = "C" then
