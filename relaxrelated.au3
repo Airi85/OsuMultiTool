@@ -35,3 +35,8 @@ func getnotediameter()
    $finaldiameter = $dmult * $sdiameter
    return $finaldiameter
 EndFunc
+
+func getnotestackinglimit()
+   return (1800*$diff[7]) - ($diff[4] * (150*$diff[7]))
+EndFunc
+

@@ -279,6 +279,7 @@ func mainguiloop(); main gui loop for data
 		 $bpm = calcbpm($difficulty,$redpoints,$greenpoints)
 		 $hitobjects = gethitobjects($version)
 		 $notes = setnotesparam($hitobjects,$version,$difficulty,$bpm)
+		 setnotestacking($notes)
 		 ;$coords = getextendedcoords($notes)
 		 $spinners = getspinners($notes)
 		 guictrlsetdata($Labelready2,"Yes")

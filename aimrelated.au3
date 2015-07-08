@@ -271,24 +271,20 @@ func slidermove($i,$notes,$firstms)
 	  $end = 1
 	  $sadd = $nmoves
 	  for $r = 1 to $notes[$i][7][1]
-		 $t = $start
+		 for $t = $start + $sadd to $end step $sadd
 	     while 1
 		    DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
 	        if DllStructGetData($buffer,1) >= $firstms then
-		       $t += $sadd
 		      ; $tomove = getBcurvepoint($basepoints,$notes[$i][1][0]-1,$t)
 			   consolewrite("bt: " & $t & @CRLF)
 		       $tomove = _Bezier_GetPoint($basepoints,$t)
 			   ;msgbox(0,"",$t & @CRLF & $tomove[1] & @CRLF & $tomove[2])
 		       mousemove($tomove[1],$tomove[2],0)
 			   $firstms += 10
-		    EndIf
-			if $end = 1 Then
-		       if $t >= $end then ExitLoop
-			Else
-			   if $t <= $end then ExitLoop
+			   ExitLoop
 			EndIf
 		 WEnd
+		 Next
 		 $scont = $start
 	     $start = $end
 	     $end = $scont

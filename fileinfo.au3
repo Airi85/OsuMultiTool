@@ -70,8 +70,8 @@ func getdiff();get difficulty of the song [1] = HP  [2] = CS  [3] = OD  [4] = AR
    $temp = ""
    $j = 1
    $handle = fileopen($songfile)
-   $filecontent = FileRead($handle)
-   $filecontent = stringsplit($filecontent,"[Difficulty]",1)
+   $filecontent0 = FileRead($handle)
+   $filecontent = stringsplit($filecontent0,"[Difficulty]",1)
    $filecontent = stringsplit($filecontent[2],"[")
    $filecontent = stringsplit($filecontent[1],@CRLF)
    dim $atemp[1]
@@ -99,6 +99,21 @@ func getdiff();get difficulty of the song [1] = HP  [2] = CS  [3] = OD  [4] = AR
    EndIf
    $temp = stringleft($temp,stringlen($temp)-1)
    $diff = stringsplit($temp,",")
+   redim $diff[9]
+   if $version <= 4 Then
+	  $diff[7] = 1
+   Else
+	  $slloc = stringinstr($filecontent0,"StackLeniency: ")+15
+	  $elloc = stringinstr($filecontent0,@CRLF,0,1,$slloc) - $slloc
+      $diff[7] = stringmid($filecontent0,$slloc,$elloc)
+   EndIf
+   if $version <= 5 Then
+	  $diff[8] = 16
+   Else
+	  $bdloc = stringinstr($filecontent0,"BeatDivisor: ")+13
+	  $elloc = stringinstr($filecontent0,@CRLF,0,1,$bdloc) - $bdloc
+      $diff[8] = stringmid($filecontent0,$bdloc,$elloc)
+   EndIf
    fileclose($handle)
    return $diff
 EndFunc
@@ -143,6 +158,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 Next
 		 $notes[$i][1][0] = $atemp[0] - $red
 		 $notes[$i][2][0] = $atemp[0] - $red
+		 $notes[$i][3][0] = $temp[3]
 		 $notes[$i][3][1] = $temp[3] - $acc
 		 $notes[$i][3][2] = calcslidertime($bpm,$temp[3],$temp[8],$diff[5],$temp[7]) + $holdtime
 		 $notes[$i][3][3] = $notes[$i][3][2] - $notes[$i][3][1]
@@ -275,4 +291,27 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
    $notes[0][0][0] = $hitobjects[0]
    return $notes
 EndFunc
+
+func setnotestacking(byref $notes)
+   $maxstackinterval = getnotestackinglimit()
+   $fs = $notes[0][0][0]
+   for $i = $notes[0][0][0]-1 to 1 step -1
+	  if $notes[$i][1][1] = $notes[$fs][1][1] and $notes[$i][2][1] = $notes[$fs][2][1] and $notes[$i+1][3][0] - $notes[$i][3][0] <= $maxstackinterval Then
+		 $notes[$i][1][1] -= 4*($fs-$i)
+		 $notes[$i][2][1] -= 4*($fs-$i)
+	  Elseif $notes[$i][1][1] = $notes[$fs][1][$notes[$fs][1][0]] and $notes[$i][2][1] = $notes[$fs][2][$notes[$fs][1][0]] and $notes[$i+1][3][0] - $notes[$i][3][0] <= $maxstackinterval Then
+		 $notes[$i][1][1] -= 4*($fs-$i)
+		 $notes[$i][2][1] -= 4*($fs-$i)
+	  Elseif $notes[$i][1][1] = $notes[$fs][1][1] and $notes[$i][2][1] = $notes[$fs][2][1] Then
+	     $notes[$i][1][1] -= 4
+		 $notes[$i][2][1] -= 4
+	  ElseIf $notes[$i][1][1] = $notes[$fs][1][$notes[$fs][1][0]] and $notes[$i][2][1] = $notes[$fs][2][$notes[$fs][1][0]] Then
+		 $notes[$i][1][1] -= 4
+		 $notes[$i][2][1] -= 4
+	  Else
+	     $fs = $i
+	  EndIf
+   Next
+EndFunc
+
 
