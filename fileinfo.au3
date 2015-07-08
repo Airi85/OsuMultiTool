@@ -104,10 +104,10 @@ func getdiff();get difficulty of the song [1] = HP  [2] = CS  [3] = OD  [4] = AR
 EndFunc
 
 func setnotesparam($hitobjects,$version,$diff,$bpm)
-   local $notes[$hitobjects[0]+1][13][5]
+   local $notes[$hitobjects[0]+1][13][7]
    dim $basepoints[2][3]
    $keycode = getkeycodes()
-   $curhigh = 5
+   $curhigh = 7
    for $i = 1 to $hitobjects[0]
 	  $acc = int(random($accmin,$accmax))
 	  $holdtime = int(random($holdmin,$holdmax))
@@ -134,9 +134,10 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			   $notes[$i][2][$k] = getabsolutecoords(stringtrimleft($atemp[$j],stringinstr($atemp[$j],":")),1)
 			Else
 			   $red += 1
-			   $l += 1
-			   ;msgbox(0,"",$k)
-			   $notes[$i][4][$l] = $k
+			   if $j <> $atemp[0] Then
+			      $l += 1
+			      $notes[$i][4][$l] = $k
+			   EndIf
 			EndIf
 			;msgbox(0,"",$notes[$i][1][$j] & @CRLF & $j)
 		 Next
@@ -154,7 +155,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			   if $notes[$i][4][1] = 2 Then
 			      $notes[$i][6][1] = "PL"
 				  $notes[$i][8][0] = sqrt(((reversecoords($notes[$i][1][1],0) - reversecoords($notes[$i][1][2],0))^2) + ((reversecoords($notes[$i][2][1],1) - reversecoords($notes[$i][2][2],1))^2))
-			   ElseIf $notes[$i][4][1] = 3
+			   ElseIf $notes[$i][4][1] = 3 Then
 				  redim $basepoints[4][3]
 				  for $h = 1 to 3
 					 $basepoints[$h][1] = reversecoords($notes[$i][1][$h],0)
@@ -171,6 +172,8 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			   $notes[$i][8][0] = getbezierlenght($basepoints)
 			ElseIf $notes[$i][6][1] = "L" Then
 			   $notes[$i][8][0] = sqrt(((reversecoords($notes[$i][1][1],0) - reversecoords($notes[$i][1][2],0))^2) + ((reversecoords($notes[$i][2][1],1) - reversecoords($notes[$i][2][2],1))^2))
+			Else
+			   error(22)
 			EndIf
 			$notes[$i][3][4] = calcslidertime($bpm,$temp[3],$notes[$i][8][0],$diff[5],$temp[7]) - $temp[3]
 			for $j = 1 to $notes[$i][4][0]
@@ -190,7 +193,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			   elseif $notes[$i][6][1] = "L" Then
 				  $notes[$i][6][$notes[$i][4][$j]] = "L"
 				  $notes[$i][8][$notes[$i][4][$j]] = sqrt(((reversecoords($notes[$i][1][$notes[$i][4][$j]],0) - reversecoords($notes[$i][1][$sliderend],0))^2) + ((reversecoords($notes[$i][2][$notes[$i][4][$j]],1) - reversecoords($notes[$i][2][$sliderend],1))^2))
-			   elseif $notes[$i][6][1] = "P"
+			   elseif $notes[$i][6][1] = "P" or $notes[$i][6][1] = "PL" Then
 				  if $j < $notes[$i][4][0] Then
 					 if $notes[$i][4][$j+1] - $notes[$i][4][$j] + 1 = 2 then
 						$notes[$i][6][$notes[$i][4][$j]] = "PL"
@@ -231,6 +234,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 Else
 			if $notes[$i][1][0] = 2 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "PL"
 			if $notes[$i][1][0] > 3 and $notes[$i][6][1] = "P" then error(21)
+			if $notes[$i][6][1] = "C" then error(22)
 		 EndIf
 	  Elseif int($temp[6]) > int($temp[3]) Then
 	     $notes[$i][0][1] = "spinner"
@@ -249,8 +253,8 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 $notes[$i][1][0] = 1
 		 $notes[$i][2][0] = 1
 	  EndIf
-	  if $i < $hitobjects[0] Then
-	     if $notes[$i][3][1] + $maxinterval > $notes[$i+1][3][1] Then
+	  if $i > 1 Then
+	     if positive($notes[$i][3][1] - $notes[$i-1][3][1]) < $maxinterval Then
 		    if $notes[$i-1][0][2] = "left" Then
 	           $notes[$i][0][2] = "right"
 		       $notes[$i][0][3] = $key[2]
@@ -266,6 +270,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 $notes[$i][0][2] = "left"
 		 $notes[$i][0][3] = $key[1]
 	  EndIf
+	  consolewrite($notes[$i][0][2] & @CRLF)
    Next
    $notes[0][0][0] = $hitobjects[0]
    return $notes

@@ -95,7 +95,10 @@ global $marginLeft = ((640 - 512) * $scale / 2) + (($screenres[1] - (800 * $scre
 global $marginTop = ((480 - 384) * $scale / 2)
 global $osuCoordX = dllstructgetdata($rect,1)
 global $osuCoordY = dllstructgetdata($rect,2)
-if $osuCoordY = 0 and $osuCoordX = 0 then $osuCoordY = 13
+if $osuCoordY <= 0 and $osuCoordX <= 0 then
+   $osuCoordY = 13
+   $osuCoordX = 0
+EndIf
 global $listsongs
 dim $listsongs[3]
 global $listdiff
