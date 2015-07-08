@@ -261,7 +261,7 @@ func slidermove($i,$notes,$firstms)
 	  Else
 		 $sliderstart = $notes[$i][4][$k]
 	  EndIf
-   if $notes[$i][6][$sliderstart] = "B" or $notes[$i][6][$sliderstart] = "L" or $notes[$i][6][$sliderstart] = "PL" then
+   if $notes[$i][6][$sliderstart] = "B" or $notes[$i][6][$sliderstart] = "L" or $notes[$i][6][$sliderstart] = "PL" or $notes[$i][6][$sliderstart] = "C" then
 	  local $basepoints[$sliderend - $sliderstart + 1][3]
 	  for $j = 0 to $sliderend - $sliderstart
 		 $basepoints[$j][1] = $notes[$i][1][$j+$sliderstart]
@@ -397,6 +397,7 @@ func reversecoords($x,$type)
    EndIf
    return $y
 EndFunc
+
 func getPcircle($basepoints,$tmoves)
    $rconvert = 57.295779513082320
    $convert = 0.0174532925199433
@@ -551,3 +552,4 @@ func getPlenght($basepoints)
    $finallenght = ($circlelenght * $anglediff) / 360
    return $finallenght
 EndFunc
+

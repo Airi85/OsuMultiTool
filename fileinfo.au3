@@ -189,7 +189,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			ElseIf $notes[$i][6][1] = "L" Then
 			   $notes[$i][8][0] = sqrt(((reversecoords($notes[$i][1][1],0) - reversecoords($notes[$i][1][2],0))^2) + ((reversecoords($notes[$i][2][1],1) - reversecoords($notes[$i][2][2],1))^2))
 			Else
-			   error(22)
+			   ;error(22)
 			EndIf
 			$notes[$i][3][4] = calcslidertime($bpm,$temp[3],$notes[$i][8][0],$diff[5],$temp[7]) - $temp[3]
 			for $j = 1 to $notes[$i][4][0]
@@ -235,7 +235,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 					 EndIf
 				  EndIf
 			   Else
-				  error(22)
+				  ;error(22)
 			   EndIf
 			   $notes[$i][3][$j+4] = calcslidertime($bpm,$temp[3],$notes[$i][8][$notes[$i][4][$j]],$diff[5],$temp[7]) - $temp[3]
 			   if $j = $notes[$i][4][0] Then
@@ -250,7 +250,33 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 Else
 			if $notes[$i][1][0] = 2 and $notes[$i][6][1] = "P" then $notes[$i][6][1] = "PL"
 			if $notes[$i][1][0] > 3 and $notes[$i][6][1] = "P" then error(21)
-			if $notes[$i][6][1] = "C" then error(22)
+			;if $notes[$i][6][1] = "C" then error(22)
+		 EndIf
+		 if $notes[$i][6][1] = "C" then
+			for $h = 0 to 1
+			   $basepoints[$h][1] = reversecoords($notes[$i][1][$h+1],0)
+			   $basepoints[$h][2] = reversecoords($notes[$i][2][$h+1],1)
+			Next
+			$notes[$i][8][0] = getbezierlenght($basepoints)
+			$notes[$i][3][4] = calcslidertime($bpm,$temp[3],$notes[$i][8][$j+1],$diff[5],$temp[7]) - $temp[3]
+			for $j = 1 to $notes[$i][1][0]-2
+		  	   $notes[$i][4][$j] = $j+1
+			   $notes[$i][6][$j+1] = "B"
+			   for $h = 0 to 1
+			      $basepoints[$h][1] = reversecoords($notes[$i][1][$h+$j+1],0)
+			      $basepoints[$h][2] = reversecoords($notes[$i][2][$h+$j+1],1)
+			   Next
+			   $notes[$i][8][$j+1] = getbezierlenght($basepoints)
+			   $notes[$i][3][$j+4] = calcslidertime($bpm,$temp[3],$notes[$i][8][$j+1],$diff[5],$temp[7]) - $temp[3]
+			   if $j = $notes[$i][1][0]-2 Then
+			      $timeunt = 0
+			      for $h = 4 to $notes[$i][4][0] + 3
+					 timeunt += $notes[$i][3][$h]
+			      Next
+			      $notes[$i][3][$j+4] = $notes[$i][3][3] - $timeunt
+			      if $notes[$i][3][$j+4] < 0 then error(23)
+			   EndIf
+			Next
 		 EndIf
 	  Elseif int($temp[6]) > int($temp[3]) Then
 	     $notes[$i][0][1] = "spinner"
