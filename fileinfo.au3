@@ -156,6 +156,10 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			EndIf
 			;msgbox(0,"",$notes[$i][1][$j] & @CRLF & $j)
 		 Next
+		 if $red + 4 >= $curhigh Then
+			redim $notes[$hitobjects[0]+1][13][$red+5]
+			$curhigh = $red+5
+		 EndIf
 		 $notes[$i][1][0] = $atemp[0] - $red
 		 $notes[$i][2][0] = $atemp[0] - $red
 		 $notes[$i][3][0] = $temp[3]
