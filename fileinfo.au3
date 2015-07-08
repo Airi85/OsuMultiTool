@@ -124,6 +124,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
    $keycode = getkeycodes()
    $curhigh = 7
    for $i = 1 to $hitobjects[0]
+	  guictrlsetdata($Labelready2,round((($i / $hitobjects[0]) * 40)+50,2) & "%")
 	  $acc = int(random($accmin,$accmax))
 	  $holdtime = int(random($holdmin,$holdmax))
 	  $temp = stringsplit($hitobjects[$i],",")
@@ -131,11 +132,23 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 	  if stringinstr($temp[6],"|") Then
 		 $notes[$i][0][1] = "slider"
 		 $atemp = stringsplit($temp[6],"|")
+		 ;_ArrayDisplay($atemp)
+		 if $atemp[2] = $temp[1] & ":" & $temp[2] Then
+			local $ctemp[$atemp[0]]
+			for $h = 3 to $atemp[0]
+			   $ctemp[$h-1] = $atemp[$h]
+			Next
+			$ctemp[1] = $atemp[1]
+			$ctemp[0] = $atemp[0] - 1
+			$atemp = $ctemp
+			 ;_ArrayDisplay($atemp)
+		 EndIf
+		 if $atemp[1] = "L" Then $atemp[1] = "C"
 		 $temp[6] = $atemp[1]
 		 ;_ArrayDisplay($atemp)
 		 if $atemp[0] >= $curhigh Then
-			redim $notes[$hitobjects[0]+1][13][$atemp[0]+1]
-			$curhigh = $atemp[0]+1
+			redim $notes[$hitobjects[0]+1][13][$atemp[0]+3]
+			$curhigh = $atemp[0]+3
 		 EndIf
 		 $notes[$i][1][1] = getabsolutecoords($temp[1],0)
 		 $notes[$i][2][1] = getabsolutecoords($temp[2],1)
@@ -156,9 +169,9 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			EndIf
 			;msgbox(0,"",$notes[$i][1][$j] & @CRLF & $j)
 		 Next
-		 if $red + 4 >= $curhigh Then
-			redim $notes[$hitobjects[0]+1][13][$red+5]
-			$curhigh = $red+5
+		 if $red + 5 >= $curhigh Then
+			redim $notes[$hitobjects[0]+1][13][$red+6]
+			$curhigh = $red+6
 		 EndIf
 		 $notes[$i][1][0] = $atemp[0] - $red
 		 $notes[$i][2][0] = $atemp[0] - $red
@@ -276,7 +289,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 			   $basepoints[$h][2] = reversecoords($notes[$i][2][$h+1],1)
 			Next
 			$notes[$i][8][0] = getbezierlenght($basepoints)
-			$notes[$i][3][4] = calcslidertime($bpm,$temp[3],$notes[$i][8][$j+1],$diff[5],$temp[7]) - $temp[3]
+			$notes[$i][3][4] = calcslidertime($bpm,$temp[3],$notes[$i][8][0],$diff[5],$temp[7]) - $temp[3]
 			for $j = 1 to $notes[$i][1][0]-2
 		  	   $notes[$i][4][$j] = $j+1
 			   $notes[$i][6][$j+1] = "B"
@@ -340,6 +353,7 @@ func setnotestacking(byref $notes)
    $maxstackinterval = getnotestackinglimit()
    $fs = $notes[0][0][0]
    for $i = $notes[0][0][0]-1 to 1 step -1
+	  guictrlsetdata($Labelready2,round(((($notes[0][0][0] - $i)  / $notes[0][0][0]) * 10)+90,2) & "%")
 	  if $notes[$i][1][1] = $notes[$fs][1][1] and $notes[$i][2][1] = $notes[$fs][2][1] and $notes[$i+1][3][0] - $notes[$i][3][0] <= $maxstackinterval Then
 		 $notes[$i][1][1] -= 4*($fs-$i)
 		 $notes[$i][2][1] -= 4*($fs-$i)

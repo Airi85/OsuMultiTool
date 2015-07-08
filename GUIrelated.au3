@@ -2,18 +2,7 @@ func optionsgui();create the GUI of options
    #Region ### START Koda GUI section ### Form=
    $Form2 = GUICreate($windowname, 1017, 365, 192, 124)
    $Tab1 = GUICtrlCreateTab(0, 0, 1017, 337)
-   $TabSheet1 = GUICtrlCreateTabItem("General")
-   $Label1 = GUICtrlCreateLabel("In-game Screen Resolution", 32, 32, 132, 17)
-   $xresin = GUICtrlCreateInput($screenres[1], 32, 56, 41, 21)
-   $Label2 = GUICtrlCreateLabel("X", 16, 59, 11, 17)
-   $Label3 = GUICtrlCreateLabel("Y", 80, 59, 11, 17)
-   $yresin = GUICtrlCreateInput($screenres[2], 96, 56, 41, 21)
-   $Label4 = GUICtrlCreateLabel("In-game Sensibility - (use sensibility 1, its not working)", 32, 112, 91, 17)
-   $sensin = GUICtrlCreateInput($sensibility, 24, 136, 65, 21)
-   $lookonlinebox = GUICtrlCreateCheckbox("Look for Address online", 32, 192, 137, 17)
-   if $lookonline = 1 then
-      GUICtrlSetState(-1, $GUI_CHECKED)
-   EndIf
+   ;$TabSheet1 = GUICtrlCreateTabItem("General")
    $TabSheet2 = GUICtrlCreateTabItem("Relax")
    $Label5 = GUICtrlCreateLabel('Timing correction - (relax will tap x miliseconds before, "x" is random between min and max, change this to improve undetectability', 32, 32, 611, 17)
    $accminin = GUICtrlCreateInput($accmin, 40, 56, 41, 21)
@@ -44,23 +33,13 @@ func optionsgui();create the GUI of options
    $TabSheet3 = GUICtrlCreateTabItem("Aimcorrection")
    $Label15 = GUICtrlCreateLabel("Correction Radius - (the range from the center of the note the Aimcorrection will take effect)", 32, 32, 432, 17)
    $correctionradiusin = GUICtrlCreateInput($correctionradius, 24, 56, 97, 21)
-   $Label16 = GUICtrlCreateLabel("Y Correction - (the center of the note is drawn a bit higher than it should, this value correct it, it might change depending on your in-game resolution, change this to the value that best fits the center of the note)", 32, 112, 979, 17)
-   $ycorrectionin = GUICtrlCreateInput($ycorrection, 24, 136, 97, 21)
-   $Label27 = GUICtrlCreateLabel("Pixels", 120, 59, 31, 17)
-   $Label28 = GUICtrlCreateLabel("Pixels", 120, 139, 31, 17)
    $TabSheet4 = GUICtrlCreateTabItem("Aimbot")
    ;GUICtrlSetState(-1,$GUI_SHOW)
    $Label17 = GUICtrlCreateLabel("Time to move mouse - (x miliseconds before the note appear it will start moving the mouse)", 32, 32, 427, 17)
    $movetimein = GUICtrlCreateInput($movetime, 24, 56, 89, 21)
    $Label18 = GUICtrlCreateLabel("Miliseconds", 112, 59, 59, 17)
-   $Label19 = GUICtrlCreateLabel("Slider Timing Correction - (Aimbot will treat sliders as it was x miliseconds before)", 32, 112, 377, 17)
-   $slideraccin = GUICtrlCreateInput($slideracc, 24, 136, 73, 21)
-   $Label23 = GUICtrlCreateLabel("Miliseconds", 96, 139, 59, 17)
-   $Label24 = GUICtrlCreateLabel("Slider Speed multiplier - (multiplier for slider speed, 0.95 will do but some 3+way sliders may have desync)", 32, 192, 493, 17)
-   $sliderspdcorrectionin = GUICtrlCreateInput($sliderspdcorrection, 24, 216, 121, 21)
-   $Label25 = GUICtrlCreateLabel("Y Correction - (the center of the note is drawn a bit higher than it should, this value correct it, it might change depending on your in-game resolution, change this to the value that best fits the center of the note)", 32, 272, 979, 17)
-   $ycorrectionaltin = GUICtrlCreateInput($ycorrection, 24, 296, 49, 21)
-   $Label26 = GUICtrlCreateLabel("Pixels", 72, 299, 31, 17)
+   $Label24 = GUICtrlCreateLabel("Slider Speed multiplier - (multiplier for slider speed, 0.95 will do but some 3+way sliders may have desync)", 32, 112, 493, 17)
+   $sliderspdcorrectionin = GUICtrlCreateInput($sliderspdcorrection, 24, 136, 121, 21)
    $TabSheet5 = GUICtrlCreateTabItem("Auto Spin")
    $Label27 = GUICtrlCreateLabel("Circle Radius - (circle radius is a random value between min and max)",32,32,333,17)
    $Label28 = GUICtrlCreateLabel("Min", 16, 59, 21, 17)
@@ -71,6 +50,11 @@ func optionsgui();create the GUI of options
    $spinvariationin = GUICtrlCreateInput($spinvariation,24,136,73,21)
    $Label31 = guictrlcreateLabel("Spins per second",32,192,100,17)
    $spinspsin = GUICtrlCreateInput($spinsps,24,216,73,21)
+   $TabSheet6 = GUICtrlCreateTabItem("Performance")
+   $Label32 = guictrlcreateLabel("Scan Precision - (the lower the value, the slower it is but its less likely to get error 12)",32,32,333,17)
+   $scanprecisionin = guictrlcreateinput($scanprecision,24,59,73,21)
+   $Label33 = GUICtrlCreateLabel("Slider Lenght Precision - (the lower the value, the slower it is but gives more precise slider timing, decrease it if you dont care about load time(or increase if you have a old processor))",32,112,700,17)
+   $bezierprecisionin = guictrlcreateinput($bezierprecision,24,139,73,21)
    GUICtrlCreateTabItem("")
    $okbutton = GUICtrlCreateButton("Ok", 0, 336, 75, 25)
    $cancelbutton = GUICtrlCreateButton("Cancel", 224, 336, 75, 25)
@@ -91,7 +75,6 @@ func optionsgui();create the GUI of options
 			   guictrlsetstate($key2in,$GUI_ENABLE)
 			EndIf
 		 Case $okbutton
-			if guictrlread($ycorrectionin) = guictrlread($ycorrectionaltin) then
 			$movetime = number(guictrlread($movetimein))
 			$correctionradius =  number(guictrlread($correctionradiusin))
 			$accmin =  number(guictrlread($accminin))
@@ -99,27 +82,28 @@ func optionsgui();create the GUI of options
 			$holdmin =  number(guictrlread($holdminin))
 			$holdmax =  number(guictrlread($holdmaxin))
 			$maxinterval =  number(guictrlread($maxintervalin))
-			$ycorrection =  number(guictrlread($ycorrectionin))
-			$slideracc =  number(guictrlread($slideraccin))
-			$sliderspdcorrection =  number(guictrlread($sliderspdcorrectionin))
-			$screenres[1] =  number(guictrlread($xresin))
-			$screenres[2] =  number(guictrlread($yresin))
-			$sensibility =  number(guictrlread($sensin))
+			$sliderspdcorrection =  number(guictrlread($sliderspdcorrectionin),3)
 			$key[1] = guictrlread($key1in)
 			$key[2] = guictrlread($key2in)
-			$spinlinemin = number(guictrlread($spinlineminin))
-			$spinlinemax = number(guictrlread($spinlinemaxin))
-			$spinvariation = number(guictrlread($spinvariationin))
-			$spinsps = number(guictrlread($spinspsin))
+			$spinlinemin = number(guictrlread($spinlineminin),3)
+			$spinlinemax = number(guictrlread($spinlinemaxin),3)
+			$spinvariation = number(guictrlread($spinvariationin),3)
+			$spinsps = number(guictrlread($spinspsin),3)
+			$scanprecision = number(guictrlread($scanprecisionin))
+			$bezierprecision = number(guictrlread($bezierprecisionin),3)
 			if guictrlread($mousebox) = $GUI_CHECKED then
 			   $usemouse = 1
 		    Else
 			   $usemouse = 0
 			EndIf
-			if guictrlread($lookonlinebox) = $GUI_CHECKED then
-			   $lookonline = 1
-			Else
-			   $lookonline = 0
+			if $scanprecision < 4 Then
+			   error(24)
+			   ExitLoop
+			EndIf
+			if $bezierprecision > 1 or $bezierprecision < 0 or (1*$bezierprecision) = 0 then
+			   msgbox(0,"",$bezierprecision & @CRLF & (1*$bezierprecision))
+			   error(25)
+			   ExitLoop
 			EndIf
 			iniwrite($config,"GENERAL","screenresolution",$screenres[1] & "x" & $screenres[2])
 			iniwrite($config,"GENERAL","sensibility",$sensibility)
@@ -140,10 +124,9 @@ func optionsgui();create the GUI of options
 			iniwrite($config,"autospin","spinlinemax",$spinlinemax)
 			iniwrite($config,"autospin","spinvariation",$spinvariation)
 			iniwrite($config,"autospin","spinsps",$spinsps)
+			iniwrite($config,"Performance","scanprecision",$scanprecision)
+			iniwrite($config,"Performance","bezierprecision",$bezierprecision)
 			exitloop
-			Else
-            msgbox(0,"Error","Y correction of aimbot and aim correction need to be of the same value")
-		    EndIf
 		 case $cancelbutton
 			exitloop
 	  EndSwitch
@@ -201,7 +184,6 @@ func mainguiloop(); main gui loop for data
 		 _exit()
 	  case $nMsg = $relaxbox or $nMsg = $aimccbox or $nMsg =  $aimbotbox or $nMsg = $relaxccbox or $nMsg = $relaxbotbox or $nMsg = $spinrad
 		 $mode = $nMsg - $relaxbox + 1
-		 GUICtrlSetData($search,$mode)
 	  case $nMsg >= $listdiff[1][1] and $nMsg <= $listdiff[ubound($listdiff)-1][1]
 		 $diffselected = $nMsg - $listdiff[1][1] + 1
 	  case $nMsg = $search
@@ -262,8 +244,8 @@ func mainguiloop(); main gui loop for data
 		 if $diffselected = "" Then
 			msgbox(0,"Error","Choose a difficulty")
 		 Else
-		 guictrlsetdata($Labelready2,"No")
-		 GUICtrlSetColor($Labelready2,"0xFF0000")
+		 guictrlsetdata($Labelready2,"0")
+		 GUICtrlSetColor($Labelready2,"0xFF00FF")
 		 if guictrlread($hrbox) = $GUI_CHECKED then
 			$hardrock = 1
 		 Else
@@ -272,16 +254,23 @@ func mainguiloop(); main gui loop for data
 		 $songfile = $listdiff[$diffselected][2]
 		 $version = getversion()
 		 $difficulty = getdiff()
+		 guictrlsetdata($Labelready2,2.5 & "%")
 		 $timingpoints = gettimingpoints()
 		 $points = getpoints($timingpoints)
+		 guictrlsetdata($Labelready2,5 & "%")
 		 $redpoints = getcolorpoints($points,1)
 		 $greenpoints = getcolorpoints($points,2)
+		 guictrlsetdata($Labelready2,7.5 & "%")
 		 $bpm = calcbpm($difficulty,$redpoints,$greenpoints)
+		 guictrlsetdata($Labelready2,10 & "%")
 		 $hitobjects = gethitobjects($version)
+		 guictrlsetdata($Labelready2,50 & "%")
 		 $notes = setnotesparam($hitobjects,$version,$difficulty,$bpm)
+		 guictrlsetdata($Labelready2,90 & "%")
 		 setnotestacking($notes)
 		 ;$coords = getextendedcoords($notes)
 		 $spinners = getspinners($notes)
+		 guictrlsetdata($Labelready2,100 & "%")
 		 guictrlsetdata($Labelready2,"Yes")
 		 GUICtrlSetColor($Labelready2,"0x00FF00")
 		 EndIf

@@ -244,13 +244,19 @@ func slidermove($i,$notes,$firstms)
    $firstms = $notes[$i][3][1]
    $moves = floor(($notes[$i][3][3] / $notes[$i][7][1]) / 10)
    $nmoves = (1 / $moves)
-   for $k = 0 to $notes[$i][4][0]
+   $start = 0
+   $end = 1
+   $neg = 1
+   $kstart = 0
+   $kend = $notes[$i][4][0]
+   for $r = 1 to $notes[$i][7][1]
+   for $k = $kstart to $kend step $neg
 	  if $notes[$i][4][0] = 0 Then
-	     $moves = floor(($notes[$i][3][$k+3] / $notes[$i][7][1]) / 10)
+	     $moves = floor((($notes[$i][3][$k+3] / $sliderspdcorrection)/ $notes[$i][7][1]) / 10)
 	  Else
-		 $moves = floor(($notes[$i][3][$k+4] / $notes[$i][7][1]) / 10)
+		 $moves = floor((($notes[$i][3][$k+4] / $sliderspdcorrection) / $notes[$i][7][1]) / 10)
 	  EndIf
-      $nmoves = (1 / $moves)
+      $nmoves = (1 / $moves) * $neg
 	  if $k = $notes[$i][4][0] Then
 		 $sliderend = $notes[$i][1][0]
 	  Else
@@ -268,10 +274,7 @@ func slidermove($i,$notes,$firstms)
 		 $basepoints[$j][1] = $notes[$i][1][$j+$sliderstart]
 		 $basepoints[$j][2] = $notes[$i][2][$j+$sliderstart]
 	  Next
-	  $start = 0
-	  $end = 1
 	  $sadd = $nmoves
-	  for $r = 1 to $notes[$i][7][1]
 		 for $t = $start + $sadd to $end step $sadd
 	     while 1
 		    DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
@@ -286,11 +289,6 @@ func slidermove($i,$notes,$firstms)
 			EndIf
 		 WEnd
 		 Next
-		 $scont = $start
-	     $start = $end
-	     $end = $scont
-	     $sadd *= -1
-	  Next
    Elseif $notes[$i][6][$sliderstart] = "P" Then
       local $basepoints[4][3]
       for $j = 1 to 3
@@ -298,10 +296,7 @@ func slidermove($i,$notes,$firstms)
 		 $basepoints[$j][2] = $notes[$i][2][$j+$sliderstart-1]
 	  Next
 	  ;$tomove = getPcircle($basepoints,$moves)
-	  $start = 0
-	  $end = 1
-	  $sadd = 1 / $moves
-	  for $r = 1 to $notes[$i][7][1] step 1
+	  $sadd = 1 / $moves * $neg
 	     for $j = $start+$sadd to $end step $sadd
 	        while 1
 		       DllCall($osumap[0], 'int', 'ReadProcessMemory', 'int', $osumap[1], 'int', $address[2], 'ptr', $bufferptr, 'int', $buffersize, 'int', '')
@@ -317,12 +312,15 @@ func slidermove($i,$notes,$firstms)
 		       EndIf
 	        WEnd
 	     Next
-	     $scont = $start
-	     $start = $end
-	     $end = $scont
-	     $sadd *= -1
-	  Next
    EndIf
+   Next
+   $scont = $start
+   $start = $end
+   $end = $scont
+   $neg *= -1
+   $kcont = $kstart
+   $kstart = $kend
+   $kend = $kcont
    Next
 EndFunc
 
@@ -472,7 +470,7 @@ func getbezierlenght($basepoints)
    $blenght = 0
    $currcoord[1] = $basepoints[0][1]
    $currcoord[2] = $basepoints[0][2]
-   for $t = 0.001 to 1 step 0.001
+   for $t = $bezierprecision to 1 step $bezierprecision
       $z = _Bezier_GetPoint($basepoints,$t)
 	  ;_ArrayDisplay($z)
 	  $diff[1] = positive($currcoord[1] - $z[1])

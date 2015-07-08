@@ -55,7 +55,7 @@ EndFunc
 
 func listdiff($msg,$asongs);list all song difficultys returned by listosufiles() in radio buttons
    if not IsArray($asongs) then return -1
-   $hdiff = 90
+   $hdiff = 74
    for $i = 1 to ubound($listdiff)-1
 	  GUICtrlDelete($listdiff[$i][1])
    Next
@@ -65,7 +65,7 @@ func listdiff($msg,$asongs);list all song difficultys returned by listosufiles()
 		 redim $listdiff[$osufiles[0][0]+1][3]
 		 GUIStartGroup()
 		 for $j = 1 to $osufiles[0][0]
-			$listdiff[$j][1] = GUICtrlCreateRadio($osufiles[$j][1], 392, $hdiff, 125, 17)
+			$listdiff[$j][1] = GUICtrlCreateRadio($osufiles[$j][1], 384, $hdiff, 125, 17)
 			$listdiff[$j][2] = $osufiles[$j][2]
 			$hdiff += 20
 		 Next

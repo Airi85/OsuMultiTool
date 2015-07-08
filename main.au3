@@ -50,7 +50,7 @@ global $holdmax = iniread($config,"relax","holdmax",80)
 global $maxinterval = iniread($config,"relax","maxinterval",179)
 global $ycorrection = iniread($config,"aim","ycorrection",35)
 global $slideracc = iniread($config,"aimbot","slideracc",20)
-global $sliderspdcorrection = iniread($config,"aimbot","sliderspdcorrection",0.95)
+global $sliderspdcorrection = iniread($config,"aimbot","sliderspdcorrection",1)
 global $lookonline = iniread($config,"GENERAL","lookonline",1)
 global $usemouse = iniread($config,"relax","usemouse",1)
 global $key = stringsplit(iniread($config,"relax","key","z,x"),",")
@@ -61,6 +61,8 @@ global $spinlinemin = iniread($config,"autospin","spinlinemin",75)
 global $spinlinemax = iniread($config,"autospin","spinlinemax",150)
 global $spinvariation = IniRead($config,"autospin","spinvariation",10)
 global $spinsps = iniread($config,"autospin","spinsps",10)
+global $scanprecision = iniread($config,"Performance","scanprecision",256)
+global $bezierprecision = iniread($config,"Performance","bezierprecision",0.001)
 hotkeyset($hotkey[1],"_exit")
 hotkeyset($hotkey[2],"mainguiloop")
 $screenres = stringsplit($screenres,"x")
@@ -124,11 +126,11 @@ global $buffersize = DllStructGetSize($buffer)
 ;global $ntdll = dllopen("ntdll.dll")
 splashoff()
 #Region ### START Koda GUI section ### Form=
-$Form1 = GUICreate($windowname, 615, 436, 190, 213)
-$menutab = guictrlcreatemenu("Options")
-$hotkeystab = GUICtrlCreateMenuitem("Hotkeys",$menutab)
-$optionstab = GUICtrlCreateMenuitem("Options",$menutab)
-$securitytab = GUICtrlCreateMenuitem("Security",$menutab)
+$Form1 = GUICreate("windowname", 616, 420, 190, 213)
+$menutab = GUICtrlCreateMenu("&Options")
+$hotkeystab = GUICtrlCreateMenuItem("Hotkeys"&@TAB&"", $menutab)
+$optionstab = GUICtrlCreateMenuItem("Options"&@TAB&"", $menutab)
+$securitytab = GUICtrlCreateMenuItem("Security"&@TAB&"", $menutab)
 $toolswin = GUICtrlCreateGroup("Select Tool", 16, 272, 241, 120)
 GUIStartGroup()
 $relaxbox = GUICtrlCreateRadio("Relax", 24, 296, 73, 17)
@@ -138,22 +140,21 @@ $relaxccbox = GUICtrlCreateRadio("Relax + Aim Correction", 120, 296, 137, 17)
 $relaxbotbox = GUICtrlCreateRadio("Relax + Aimbot", 120, 320, 113, 17)
 $spinrad = GUICtrlCreateRadio("Auto Spin only", 120, 344, 113, 17)
 $spinbox = GUICtrlCreateCheckbox("Auto Spin", 24, 368, 89, 17)
-;$useinternalbox = GUICtrlCreateCheckbox("Use internal timestamp", 120, 368, 129, 17)
 GUICtrlCreateGroup("", -99, -99, 1, 1)
 $search = GUICtrlCreateInput("Enter Song Name", 24, 16, 233, 21)
 $listsongs[1] = GUICtrlCreateListView("Song Name|Song ID", 8, 40, 314, 198, BitOR($GUI_SS_DEFAULT_LISTVIEW,$LVS_SORTASCENDING,$LVS_AUTOARRANGE,$WS_HSCROLL,$WS_VSCROLL))
 GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 0, 300)
 GUICtrlSendMsg(-1, $LVM_SETCOLUMNWIDTH, 1, 50)
-$selectdiff = GUICtrlCreateGroup("Select Difficulty", 384, 74, 137, 92)
+$selectdiff = GUICtrlCreateGroup("Select Difficulty", 376, 58, 137, 156)
 GUICtrlCreateGroup("", -99, -99, 1, 1)
-$loadbutton = GUICtrlCreateButton("Load", 528, 104, 75, 25)
-global $Labelready = GUICtrlCreateLabel("Ready:", 400, 280, 38, 17)
-global $Labelready2 = GUICtrlCreateLabel("No", 438, 280, 18, 17)
-global $Labelstatus = GUICtrlCreateLabel("Status:", 400, 304, 37, 17)
-global $Labelstatus2 = GUICtrlCreateLabel("Not Initialized", 438, 304, 150, 17)
+$loadbutton = GUICtrlCreateButton("Load", 520, 88, 75, 25)
+global $Labelready = GUICtrlCreateLabel("Ready:", 400, 344, 38, 17)
+global $Labelready2 = GUICtrlCreateLabel("No", 438, 344, 150, 17)
+global $Labelstatus = GUICtrlCreateLabel("Status:", 400, 368, 37, 17)
+global $Labelstatus2 = GUICtrlCreateLabel("Not Initialized", 438, 368, 150, 17)
 $initbutton = GUICtrlCreateButton("Initialize", 264, 312, 75, 25)
 $updatebutton = GUICtrlCreateButton("Update Song List", 256, 16, 99, 25)
-$hrbox = GUICtrlCreateCheckbox("Hardrock", 528, 80, 97, 17)
+$hrbox = GUICtrlCreateCheckbox("Hardrock", 520, 64, 97, 17)
 guiregistermsg($WM_COMMAND,"buttonpressed")
 GUICtrlSetColor($Labelready2,"0xFF0000")
 GUICtrlSetColor($Labelstatus2,"0xFF0000")
@@ -175,68 +176,6 @@ func findaddress();finds the address [1]-[4] time addresses [5] = active song [6
    if $add <> 0 Then
       return $address
    EndIf
-   if $lookonline = 1 Then
-	  filedelete($htmlname)
-      inetget("http://freetexthost.com/g5i60ntyqx",$htmlname)
-   EndIf
-   dim $taddress[5]
-   dim $temp[5]
-   dim $aaddress[65536][5]
-   dim $atemp[65536][5]
-   $h = fileopen($htmlname)
-   $filecontent = fileread($h)
-   $filecontent = stringsplit($filecontent,"[Changeable Info]",1)
-   $filecontent[2] = stringmid($filecontent[2],9,20)
-   $ad = stringsplit($filecontent[2]," ")
-   fileclose($h)
-   $success = 0
-   for $i = 0 to 65535
-      $hex = stringmid(hex($i),5)
-	  $temp[1] = "0x" & $hex & $ad[3] & $ad[4]
-	  $temp[2] = "0x" & $hex & $ad[3] & $ad[5]
-      $temp[3] = "0x" & $hex & $ad[3] & $ad[6]
-	  $temp[4] = "0x" & $hex & $ad[3] & $ad[7]
-	  ConsoleWrite($temp[1])
-	  $atemp[$i][1] = $temp[1]
-	  $atemp[$i][2] = $temp[2]
-	  $atemp[$i][3] = $temp[3]
-	  $atemp[$i][4] = $temp[4]
-	  for $j = 1 to 4
-         $taddress[$j] = _MemoryRead($temp[$j],$osumap)
-		 if @error then error(@error+5)
-		 $aaddress[$i][$j] = $taddress[$j]
-	  Next
-	  if $taddress[1] < 1000000 and $taddress[1] > 0 and $taddress[1] = $taddress[2] Then
-		 $addiff = $taddress[1] - $taddress[3]
-		 $bddiff = $taddress[1] - $taddress[4]
-		 if $addiff < 0 Then
-			$addiff *= -1
-		 EndIf
-		 if $bddiff < 0 Then
-			$bddiff *= -1
-		 EndIf
-		 if $addiff < 1000 Then
-			$success += 1
-		 EndIf
-		 if $bddiff < 1000 Then
-			$success += 1
-		 EndIf
-		 if $success = 2 Then return $temp
-	  EndIf
-   Next
-   for $i = 0 to 5000
-	  if not FileExists("log" & $i & ".ini") Then
-		 $log = "log" & $i & ".ini"
-		 ExitLoop
-	  EndIf
-   Next
-   $logad = "address"
-   $logval = "value"
-   for $i = 0 to 1000
-	  iniwrite($log,"success",0,$success)
-	  iniwrite($log,$logad,$i,$atemp[$i][1] & "|" & $atemp[$i][2] & "|" & $atemp[$i][3] & "|" & $atemp[$i][4])
-	  iniwrite($log,$logval,$i,$aaddress[$i][1] & "|" & $aaddress[$i][2] & "|" & $aaddress[$i][3] & "|" & $aaddress[$i][4])
-   Next
 EndFunc
 
 func _exit();exit tool and close handles
@@ -372,6 +311,10 @@ func error($Nerror);semi error handler
 		 mainguiloop()
 	  case 23
 		 msgbox(0,"Error","Something went wrong: Slider time" & @CRLF & "error code: " & 23)
+	  case 24
+		 msgbox(0,"Error","Scan Precision can't be less then 4!" & @CRLF & "error code: " & 24)
+	  case 25
+		 msgbox(0,"Error","Slider Lenght Precision need to be of range 0..1" & @CRLF & "error code " & 25)
    EndSwitch
 EndFunc
 

@@ -14,18 +14,18 @@
 ; Example .......: No
 ; ===============================================================================================================================
 Func _AOBScan($handle, $sig)
-	Local $Mult = 1600
 	$sig = StringRegExpReplace($sig, "[^0123456789ABCDEFabcdef?.]", "")
 	$sig = StringRegExpReplace($sig, "[?]", ".")
 	Local $bytes = StringLen($sig) / 2
+	Local $tread = "byte[" & $scanprecision + $bytes & "]"
 
 ;~ 	Local $start_addr = 0x00400000
 ;~ 	Local $end_Addr = 0x0FFFFFFF
 	Local $start_addr = 0x00000000
 	Local $end_Addr = 0x7FFFFFFF
 
-	For $addr = $start_addr To $end_Addr Step 256
-		StringRegExp(_MemoryRead($addr, $handle, "byte[256]"), $sig, 1, 2)
+	For $addr = $start_addr To $end_Addr Step $scanprecision
+		StringRegExp(_MemoryRead($addr, $handle, $tread), $sig, 1, 2)
 		If @error = 0 Then
 			Return StringFormat("0x%.8X", $addr + ((@extended - StringLen($sig) - 2) / 2))
 		EndIf
