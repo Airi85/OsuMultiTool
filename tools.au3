@@ -185,7 +185,7 @@ func relaxaimbot($notes,$spinners)
 		 if $usemouse = 1 Then
 		    mousedown($notes[$i][0][2])
 	     Else
-		    send("{" & $notes[$k][4] & " down}")
+		    send("{" & $notes[$i][0][3] & " down}")
 		 EndIf
 		 if $notes[$i][1][0] > 1 Then
 			slidermove($i,$notes,$ms)
@@ -203,7 +203,7 @@ func relaxaimbot($notes,$spinners)
 		 if $usemouse = 1 Then
 		    mouseup($notes[$i][0][2])
 		 Else
-			send("{" & $notes[$k][4] & " up}")
+			send("{" & $notes[$i][0][3] & " up}")
 		 EndIf
 		 $k +=1
 		 $i +=1

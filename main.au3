@@ -126,7 +126,7 @@ global $buffersize = DllStructGetSize($buffer)
 ;global $ntdll = dllopen("ntdll.dll")
 splashoff()
 #Region ### START Koda GUI section ### Form=
-$Form1 = GUICreate("windowname", 616, 420, 190, 213)
+$Form1 = GUICreate($windowname, 616, 420, 190, 213)
 $menutab = GUICtrlCreateMenu("&Options")
 $hotkeystab = GUICtrlCreateMenuItem("Hotkeys"&@TAB&"", $menutab)
 $optionstab = GUICtrlCreateMenuItem("Options"&@TAB&"", $menutab)
