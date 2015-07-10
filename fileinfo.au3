@@ -314,6 +314,7 @@ func setnotesparam($hitobjects,$version,$diff,$bpm)
 		 $notes[$i][1][1] = getabsolutecoords($temp[1],0)
 		 $notes[$i][2][1] = getabsolutecoords($temp[2],1)
 		 $notes[$i][3][1] = $temp[3] - $acc
+		 $notes[$i][3][2] = $temp[6] + $holdtime
 		 $notes[$i][6][1] = $temp[6] + $holdtime
 		 $notes[$i][1][0] = 1
 		 $notes[$i][2][0] = 1
