@@ -164,9 +164,9 @@ mainguiloop()
 
 func findaddress();finds the address [1]-[4] time addresses [5] = active song [6] = xres [7] = yres
    dim $address[8]
-   $aob = "00 E9 40 68"
+   $aob = "C3 32 09 71 08 00 20 00"
    $add = _AOBScan($osumap,$aob)
-   $address[1] = $add - 0x315A
+   $address[1] = $add - 0xD58
    $address[2] = $address[1] + 0x4
    $address[3] = $address[1] + 0x8
    $address[4] = $address[1] + 0xC
